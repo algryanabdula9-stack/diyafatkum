@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ضيافتكم</title>
+<style>
+:root{--bg:#fbf6ee;--card:#fff;--text:#2f241d;--muted:#7b6a5b;--primary:#7a3f25;--primary2:#a56d45;--line:#ead9c4;--soft:#fff4df;--green:#2f8a5b;--red:#b33a3a;--yellow:#b87916}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,Arial,sans-serif;background:linear-gradient(#fffaf2,#f1e2d0);color:var(--text)}
+.app{max-width:430px;margin:auto;min-height:100vh;background:var(--bg);padding:18px 16px 100px;position:relative}
+.screen{display:none}.screen.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 8px 20px rgba(80,45,20,.06)}
+.hero{background:linear-gradient(135deg,#fff,#fff1dc);border-radius:28px}
+h1,h2,h3{color:var(--primary)}h1{font-size:22px;margin-bottom:6px}h2{font-size:16px;margin-bottom:10px}h3{font-size:14px}
+p{color:var(--muted);font-size:13.5px;line-height:1.7}
+.logo{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;flex-shrink:0}
+.btn{width:100%;padding:14px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;font-weight:900;font-family:inherit;margin-top:10px;cursor:pointer;font-size:14px}
+.btn.secondary{background:#fff;color:var(--primary);border:1px solid var(--line)}
+.btn.danger{background:#fff;color:var(--red);border:1px solid #f3caca}
+.btn.green{background:linear-gradient(135deg,#2f8a5b,#3fae76)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.back{border:1px solid var(--line);background:#fff;color:var(--primary);border-radius:14px;padding:10px 14px;font-weight:900;font-size:13px;cursor:pointer}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--primary);font-size:11.5px;font-weight:900}
+.badge.green{background:#eaf8f1;color:var(--green)}.badge.red{background:#fff0f0;color:var(--red)}.badge.yellow{background:#fff4df;color:var(--yellow)}.badge.gray{background:#f1ede6;color:var(--muted)}
+
+.co-row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:10px;cursor:pointer;transition:.15s}
+.co-row:active{transform:scale(.98)}
+.co-row .info{flex:1}
+.co-row .info b{display:block;font-size:15px;color:var(--text)}
+.co-row .info span{font-size:12px;color:var(--muted)}
+.co-row .arrow{color:var(--primary2);font-size:18px}
+
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.pkg-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;cursor:pointer}
+.pkg-card .em{font-size:26px;display:block;margin-bottom:8px}
+.pkg-card b{display:block;font-size:13px;color:var(--text);line-height:1.4;margin-bottom:4px;min-height:36px}
+.pkg-card .price{color:var(--primary);font-weight:900;font-size:13px}
+.pkg-card .hint{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+.svc-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:16px;padding:11px;margin-bottom:8px;background:#fff}
+.svc-row .info{flex:1}
+.svc-row .info b{display:block;font-size:13.5px}
+.svc-row .info span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.svc-row .price{font-size:13px;font-weight:900;color:var(--primary);white-space:nowrap}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:28px;height:28px;border-radius:9px;border:1px solid var(--line);background:var(--soft);color:var(--primary);font-weight:900;font-size:15px;cursor:pointer}
+.stepper span{min-width:16px;text-align:center;font-weight:900;font-size:13px}
+.addbtn{border:0;background:var(--primary);color:#fff;border-radius:10px;padding:7px 12px;font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap}
+.addbtn.added{background:var(--green)}
+
+.tier-option{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-size:13px;background:#fff}
+.tier-option.selected{border-color:var(--primary);background:var(--soft)}
+.tier-option b{color:var(--primary);font-size:13px}
+
+label{display:block;font-weight:900;margin:12px 0 6px;font-size:13.5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:14px;font-family:inherit;background:#fff;font-size:13.5px}
+textarea{min-height:70px;resize:none}
+
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+.total-bar{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);max-width:398px;width:calc(100% - 32px);background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px 14px;box-shadow:0 -6px 20px rgba(80,45,20,.12);display:flex;align-items:center;gap:10px;z-index:20}
+.total-bar .sum{flex:1}
+.total-bar .sum span{display:block;font-size:11px;color:var(--muted)}
+.total-bar .sum b{font-size:17px;color:var(--primary)}
+.total-bar button{width:auto;padding:12px 20px;margin:0}
+
+.cart-fab{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);max-width:398px;width:calc(100% - 32px);background:var(--primary);color:#fff;border:0;border-radius:16px;padding:13px;font-weight:900;font-size:13.5px;box-shadow:0 8px 20px rgba(80,45,20,.25);z-index:20;cursor:pointer}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-grid.g3{grid-template-columns:1fr 1fr 1fr}
+.stat-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+.stat-box b{display:block;font-size:20px;color:var(--primary)}
+.stat-box span{font-size:10.5px;color:var(--muted)}
+.stat-box.alert{background:#fff7e7;border-color:#ead2aa}
+.stat-box.alert b{color:var(--yellow)}
+
+.urgent-card{background:linear-gradient(135deg,#fff7e7,#fff1d6);border:1px solid #ead2aa;border-radius:20px;padding:14px;margin-bottom:14px}
+.urgent-card h2{color:#6b421f;display:flex;align-items:center;gap:6px}
+.urgent-card.danger{background:linear-gradient(135deg,#fff0f0,#ffe4e4);border-color:#f3caca}
+.urgent-card.danger h2{color:var(--red)}
+
+.tab-bar{display:flex;gap:6px;margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px}
+.tab-bar button{flex:1;border:0;background:transparent;padding:9px 4px;border-radius:11px;font-weight:900;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit}
+.tab-bar button.active{background:var(--primary);color:#fff}
+
+.entity-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px;margin-bottom:10px}
+.entity-card .head{display:flex;align-items:flex-start;gap:10px}
+.entity-card .head .info{flex:1}
+.entity-card .head .info b{font-size:14px;display:block}
+.entity-card .meta{font-size:12px;color:var(--muted);margin-top:2px}
+.entity-card .details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;display:none}
+.entity-card .details.open{display:block}
+.entity-card .details .li{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
+.entity-card .toggle{background:none;border:0;color:var(--primary2);font-size:12px;font-weight:900;margin-top:8px;cursor:pointer;padding:0}
+.entity-card .actions{display:flex;gap:8px;margin-top:10px}
+.entity-card .actions button{flex:1;margin-top:0}
+.entity-card .countdown-mini{font-weight:900;color:var(--red);font-size:15px}
+.issue-box{background:#fff7e7;border:1px solid #ead2aa;border-radius:14px;padding:10px;font-size:12.5px;color:#6b421f;margin-top:8px}
+
+.list-item-manage{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
+.list-item-manage .em{font-size:24px}
+.list-item-manage .info{flex:1}
+.list-item-manage .info b{display:block;font-size:13.5px}
+.list-item-manage .info span{font-size:11.5px;color:var(--muted)}
+.list-item-manage .acts{display:flex;gap:6px}
+.icon-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 9px;cursor:pointer;font-size:13px}
+
+.tier-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.tier-row input{flex:1}
+.tier-row input.price-in{max-width:80px;flex:none}
+.remove-row{border:0;background:#fff0f0;color:var(--red);border-radius:10px;width:36px;height:40px;font-weight:900;cursor:pointer;flex-shrink:0}
+.add-row-btn{border:1px dashed var(--line);background:var(--soft);color:var(--primary);border-radius:12px;padding:9px;width:100%;font-weight:900;font-size:12.5px;cursor:pointer;margin-top:2px}
+
+.countdown{font-size:44px;font-weight:900;color:var(--primary);text-align:center;letter-spacing:2px;margin:10px 0}
+.center-icon{width:64px;height:64px;border-radius:20px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px}
+
+.order-row{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;background:#fff}
+.order-row .top2{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.order-row .top2 b{font-size:14px}
+.chip{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip span{background:var(--soft);color:var(--primary);border-radius:999px;padding:4px 9px;font-size:11px;font-weight:700}
+
+.empty{text-align:center;padding:30px 10px;color:var(--muted)}
+.empty .em{font-size:34px;display:block;margin-bottom:8px}
+.hint-note{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+.role-btn-row{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:rgba(255,255,255,.95);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 6px 15px;backdrop-filter:blur(12px);z-index:30}
+.nav button{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:900;font-family:inherit;cursor:pointer;position:relative;flex:1}
+.nav button.active{color:var(--primary)}
+.nav span{display:block;font-size:19px}
+.nav .dot{position:absolute;top:-2px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid #fff}
+</style>
+</head>
+<body><main class="app" id="app">
+
+<!-- ===================== LOGIN ===================== -->
+<section id="login" class="screen active">
+  <div class="card hero">
+    <div class="logo">🫖</div>
+    <h1>ضيافتكم</h1>
+    <p>منصة كويتية لخدمات الضيافة والاستقبال</p>
+  </div>
+  <div class="card">
+    <label>البريد الإلكتروني</label>
+    <input id="loginEmail" placeholder="name@example.com">
+    <label>كلمة المرور</label>
+    <input id="loginPassword" type="password" placeholder="••••••••">
+    <p class="hint-note">هذا النموذج شكل مبدئي فقط. الدخول الفعلي بيتفعّل لاحقًا عبر Supabase Auth. حاليًا استخدمي أزرار الدخول التجريبي بالأسفل حسب الدور اللي تبين تجربينه.</p>
+  </div>
+  <div class="card">
+    <h2>دخول تجريبي حسب الدور</h2>
+    <div class="role-btn-row">
+      <button class="btn" onclick="login('customer')">دخول تجريبي كعميلة</button>
+      <button class="btn secondary" onclick="login('provider')">دخول تجريبي كمقدم خدمة (بيت الضيافة)</button>
+      <button class="btn secondary" onclick="login('admin')">دخول تجريبي كمدير المنصة</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ACCOUNT (مشترك) ===================== -->
+<section id="account" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen(currentUser? (currentUser.role==='customer'?'c-home':currentUser.role==='provider'?'p-home':'a-home') : 'login')">رجوع</button>
+    <span class="badge">حسابي</span>
+  </div>
+  <div class="card hero" id="accountInfo"></div>
+  <div class="card">
+    <button class="btn danger" onclick="logout()">تسجيل الخروج</button>
+  </div>
+  <div class="card">
+    <h2>أدوات تجربة المطور</h2>
+    <p>بما إن هذا نموذج تجريبي بجلسة واحدة (بدون قاعدة بيانات حقيقية بعد)، تقدرين تبدلين الدور فورًا بنفس الجلسة عشان تجربين التدفق الكامل (مثال: أرسلي طلب كعميلة، ثم بدلي لمقدم الخدمة وردي عليه).</p>
+    <div class="role-btn-row">
+      <button class="btn secondary" onclick="login('customer')">تبديل لعرض العميل</button>
+      <button class="btn secondary" onclick="login('provider')">تبديل لعرض مقدم الخدمة</button>
+      <button class="btn secondary" onclick="login('admin')">تبديل لعرض المدير</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CUSTOMER: HOME ===================== -->
+<section id="c-home" class="screen">
+  <div class="card hero">
+    <div class="logo">🫖</div>
+    <h1>ضيافتكم</h1>
+    <p>اختاري الشركة اللي تبين تطلبين منها ضيافتكم اليوم</p>
+  </div>
+  <h2>الشركات المتاحة</h2>
+  <div id="c_companyList"></div>
+</section>
+
+<!-- ===================== CUSTOMER: COMPANY ===================== -->
+<section id="c-company" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('c-home')">رجوع</button>
+    <span class="badge" id="c_coBadge">شركة</span>
+  </div>
+  <div class="card hero" id="c_coHeader"></div>
+  <h2>البكجات</h2>
+  <div class="pkg-grid" id="c_pkgGrid"></div>
+  <div id="c_svcSection"></div>
+</section>
+
+<!-- ===================== CUSTOMER: PACKAGE DETAIL ===================== -->
+<section id="c-pkgDetail" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('c-company')">رجوع</button>
+    <span class="badge">تفاصيل البكج</span>
+  </div>
+  <div class="card hero" id="c_pkgHeader"></div>
+  <div class="card" id="c_pkgPricingCard"></div>
+  <div class="card">
+    <h2>تفاصيل الحجز</h2>
+    <label>عدد الضيوف المتوقع (اختياري - لمعلومية مقدم الخدمة فقط، ما يغيّر السعر)</label>
+    <input type="number" id="c_pkgGuests" placeholder="مثال: 80">
+    <label>التاريخ</label>
+    <input type="date" id="c_pkgDate">
+    <label>الموقع</label>
+    <input type="text" id="c_pkgLocation" placeholder="مثال: قاعة الأفراح - السالمية">
+    <label>ملاحظات (اختياري)</label>
+    <textarea id="c_pkgNotes" placeholder="أي طلب خاص بسيط، مثال: بدون سكر، التسليم الساعة ٧"></textarea>
+  </div>
+  <div class="card" id="c_pkgAddonsCard" style="display:none">
+    <h2>إضافات اختيارية من نفس الشركة</h2>
+    <div id="c_pkgAddonsList"></div>
+  </div>
+  <div style="height:80px"></div>
+</section>
+
+<!-- ===================== CUSTOMER: SERVICES CART REVIEW ===================== -->
+<section id="c-svcReview" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('c-company')">رجوع</button>
+    <span class="badge">مراجعة الطلب</span>
+  </div>
+  <div class="card hero">
+    <div class="logo">🧾</div>
+    <h1>طلب خدمات متفرقة</h1>
+    <p id="c_svcReviewCoName"></p>
+  </div>
+  <div class="card">
+    <h2>العناصر المطلوبة</h2>
+    <div id="c_svcReviewList"></div>
+  </div>
+  <div class="card">
+    <label>ملاحظات (اختياري)</label>
+    <textarea id="c_svcNotes" placeholder="اكتبي أي تفاصيل إضافية هنا"></textarea>
+  </div>
+  <div class="hint-note" style="background:#fff7e7;border:1px solid #ead2aa;border-radius:16px;padding:12px;color:#6b421f">
+    لأن هذا طلب خدمات متفرقة بدون بكج، لازم ينتظر موافقة مقدم الخدمة. عنده ٥ دقايق يرد، وإذا ما رد يلغى الطلب تلقائيًا.
+  </div>
+  <div style="height:80px"></div>
+</section>
+
+<!-- ===================== CUSTOMER: PENDING ===================== -->
+<section id="c-pending" class="screen">
+  <div class="top">
+    <span></span>
+    <span class="badge yellow">بانتظار الموافقة</span>
+  </div>
+  <div class="card hero" style="text-align:center">
+    <div class="center-icon">⏳</div>
+    <h1>طلبك عند <span id="c_pendingCoName"></span></h1>
+    <p>ننتظر رد مقدم الخدمة على طلبك</p>
+    <div class="countdown" id="c_countdownText">05:00</div>
+    <p style="font-size:12px">إذا انتهت المدة بدون رد، يُلغى الطلب تلقائيًا</p>
+  </div>
+  <div class="card">
+    <h2>ملخص الطلب</h2>
+    <div id="c_pendingSummary"></div>
+  </div>
+  <div class="hint-note" style="background:#fff7e7;border:1px solid #ead2aa;border-radius:16px;padding:12px;color:#6b421f">
+    للتجربة: افتحي "حسابي" وبدّلي لعرض "مقدم الخدمة" عشان توافقين أو ترفضين هذا الطلب من هناك، وراجعي هذي الصفحة.
+  </div>
+</section>
+
+<!-- ===================== CUSTOMER: DECLINED ===================== -->
+<section id="c-declined" class="screen">
+  <div class="card hero" style="text-align:center">
+    <div class="center-icon" style="background:#fff0f0">❌</div>
+    <h1 id="declinedTitle">لم تتم الموافقة على الطلب</h1>
+    <p id="declinedText"></p>
+    <button class="btn" onclick="showScreen('c-home')">رجوع للرئيسية</button>
+  </div>
+</section>
+
+<!-- ===================== CUSTOMER: PAYMENT ===================== -->
+<section id="c-payment" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('c-home')">رجوع</button>
+    <span class="badge">الدفع</span>
+  </div>
+  <div class="card hero">
+    <div class="logo">💳</div>
+    <h1>إتمام الدفع</h1>
+    <p id="c_paymentCoName"></p>
+  </div>
+  <div class="card">
+    <h2>ملخص الفاتورة</h2>
+    <div id="c_paymentSummary"></div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:900;font-size:16px;color:var(--primary)">
+      <span>الإجمالي</span><span id="c_paymentTotal"></span>
+    </div>
+  </div>
+  <div class="card">
+    <label>رقم البطاقة</label>
+    <input placeholder="•••• •••• •••• ••••">
+    <label>KNET / بطاقة ائتمان</label>
+    <select><option>KNET</option><option>Visa / Mastercard</option></select>
+  </div>
+  <button class="btn" onclick="custCompletePayment()">تأكيد الدفع</button>
+</section>
+
+<!-- ===================== CUSTOMER: SUCCESS ===================== -->
+<section id="c-success" class="screen">
+  <div class="card hero" style="text-align:center">
+    <div class="center-icon" style="background:#eaf8f1">✅</div>
+    <h1>تم تأكيد الطلب</h1>
+    <p id="c_successText"></p>
+    <button class="btn" onclick="showScreen('c-home')">رجوع للرئيسية</button>
+    <button class="btn secondary" onclick="showScreen('c-orders')">عرض طلباتي</button>
+  </div>
+</section>
+
+<!-- ===================== CUSTOMER: MY ORDERS ===================== -->
+<section id="c-orders" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('c-home')">رجوع</button>
+    <span class="badge">طلباتي</span>
+  </div>
+  <h1 style="margin-bottom:12px">طلباتي</h1>
+  <div id="c_ordersList"></div>
+</section>
+
+<!-- ===================== PROVIDER: HOME ===================== -->
+<section id="p-home" class="screen">
+  <div class="card hero">
+    <div class="logo" id="p_homeLogo">☕</div>
+    <h1 id="p_homeCoName">بيت الضيافة</h1>
+    <p>لوحة تحكم مقدم الخدمة</p>
+  </div>
+  <div class="stat-grid g3" id="p_statGrid"></div>
+  <div id="p_urgentArea"></div>
+  <div class="card">
+    <h2>وصول سريع</h2>
+    <button class="btn secondary" onclick="showScreen('p-orders')">إدارة الطلبات</button>
+    <button class="btn secondary" onclick="showScreen('p-catalog')">بكجاتي وخدماتي</button>
+  </div>
+</section>
+
+<!-- ===================== PROVIDER: ORDERS ===================== -->
+<section id="p-orders" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('p-home')">رجوع</button>
+    <span class="badge">إدارة الطلبات</span>
+  </div>
+  <h1>الطلبات</h1>
+  <div class="tab-bar" id="p_orderTabBar"></div>
+  <div id="p_ordersListArea"></div>
+</section>
+
+<!-- ===================== PROVIDER: CATALOG ===================== -->
+<section id="p-catalog" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('p-home')">رجوع</button>
+    <span class="badge">بكجاتي وخدماتي</span>
+  </div>
+  <h1>بكجاتي وخدماتي</h1>
+  <h2>البكجات</h2>
+  <div id="p_pkgManageList"></div>
+  <button class="btn" onclick="provOpenPkgForm(null)">+ أضف بكج جديد</button>
+  <div class="divider"></div>
+  <h2>الخدمات الإضافية</h2>
+  <div id="p_svcManageList"></div>
+  <button class="btn" onclick="provOpenSvcForm(null)">+ أضف خدمة إضافية جديدة</button>
+</section>
+
+<!-- ===================== PROVIDER: PACKAGE FORM ===================== -->
+<section id="p-pkgForm" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('p-catalog')">رجوع</button>
+    <span class="badge" id="p_pkgFormBadge">بكج جديد</span>
+  </div>
+  <div class="card">
+    <label>اسم البكج</label>
+    <input id="p_pkgFName" placeholder="مثال: باقة ضيافة الزمردة">
+    <label>رمز مميز (إيموجي)</label>
+    <input id="p_pkgFEmoji" placeholder="☕" maxlength="4">
+    <label>محتويات البكج (كل عنصر بسطر)</label>
+    <textarea id="p_pkgFIncludes" placeholder="شاي عربي وأجنبي
+قهوة عربية"></textarea>
+    <label>طريقة التسعير</label>
+    <select id="p_pkgFType" onchange="provRenderPkgFormPricing()">
+      <option value="tier">فئات حسب عدد الأشخاص (السعر يحدده مقدم الخدمة لكل فئة)</option>
+      <option value="perKg">بالكيلو</option>
+      <option value="fixed">سعر ثابت</option>
+    </select>
+    <div id="p_pkgFPricingArea"></div>
+  </div>
+  <button class="btn" onclick="provSavePackageForm()">حفظ البكج</button>
+  <button class="btn danger" id="p_pkgFDeleteBtn" style="display:none" onclick="provDeletePackageForm()">حذف البكج</button>
+</section>
+
+<!-- ===================== PROVIDER: SERVICE FORM ===================== -->
+<section id="p-svcForm" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('p-catalog')">رجوع</button>
+    <span class="badge" id="p_svcFormBadge">خدمة جديدة</span>
+  </div>
+  <div class="card">
+    <label>اسم الخدمة</label>
+    <input id="p_svcFName" placeholder="مثال: طاولات عرض إضافية">
+    <label>وصف مختصر</label>
+    <input id="p_svcFDesc" placeholder="مثال: طاولة مع تغطية قماش">
+    <label>طريقة التسعير</label>
+    <select id="p_svcFType" onchange="provRenderSvcFormPricing()">
+      <option value="tier">فئات حسب الكمية أو عدد الضيوف</option>
+      <option value="perKg">بالكيلو</option>
+      <option value="perUnit">بالوحدة (يتكرر السعر مع كل وحدة فعلًا)</option>
+      <option value="fixed">سعر ثابت</option>
+    </select>
+    <div id="p_svcFPricingArea"></div>
+  </div>
+  <button class="btn" onclick="provSaveServiceForm()">حفظ الخدمة</button>
+  <button class="btn danger" id="p_svcFDeleteBtn" style="display:none" onclick="provDeleteServiceForm()">حذف الخدمة</button>
+</section>
+
+<!-- ===================== ADMIN: HOME ===================== -->
+<section id="a-home" class="screen">
+  <div class="card hero">
+    <div class="logo">🛡️</div>
+    <h1>لوحة مدير التطبيق</h1>
+    <p>ضيافتكم - نظرة عامة على المنصة</p>
+  </div>
+  <div class="stat-grid" id="a_statGrid"></div>
+  <div id="a_urgentArea"></div>
+  <div class="card">
+    <h2>وصول سريع</h2>
+    <button class="btn secondary" onclick="showScreen('a-companies')">إدارة الشركات</button>
+    <button class="btn secondary" onclick="showScreen('a-orders')">الطلبات والنزاعات</button>
+  </div>
+</section>
+
+<!-- ===================== ADMIN: COMPANIES ===================== -->
+<section id="a-companies" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('a-home')">رجوع</button>
+    <span class="badge">الشركات</span>
+  </div>
+  <h1>الشركات المسجلة بالمنصة</h1>
+  <div class="tab-bar" id="a_coTabBar"></div>
+  <div id="a_companiesListArea"></div>
+</section>
+
+<!-- ===================== ADMIN: ORDERS / DISPUTES ===================== -->
+<section id="a-orders" class="screen">
+  <div class="top">
+    <button class="back" onclick="showScreen('a-home')">رجوع</button>
+    <span class="badge">الطلبات والنزاعات</span>
+  </div>
+  <h1>الطلبات على مستوى المنصة</h1>
+  <div class="tab-bar" id="a_orderTabBar"></div>
+  <div id="a_ordersListArea"></div>
+</section>
+
+<div class="nav" id="navBar" style="display:none"></div>
+
+</main>
+
+<script>
+/* =========================================================================
+   نموذج بيانات موحّد يخدم الأدوار الثلاثة (عميل / مقدم خدمة / مدير) من نفس
+   المصفوفات، تمهيدًا لنقلها لجداول قاعدة بيانات حقيقية بمشروع Supabase.
+   ========================================================================= */
+const now = Date.now();
+const DAY = 86400000;
+
+/* ---- المستخدمون (لاحقًا: جدول profiles مرتبط بـ auth.users) ---- */
+let currentUser = null; // {id, name, role:'customer'|'provider'|'admin', companyId? }
+
+/* ---- الشركات (لاحقًا: جدول companies + جدول packages + جدول package_tiers + جدول services + service_tiers) ---- */
+let companies = [
+  {id:'c1', name:'بيت الضيافة', logo:'☕', tag:'شاي وقهوة وتقديم', status:'active', joinedAt: now-200*DAY, rating:4.8,
+    packages:[
+      {id:'p1', name:'باقة ضيافة الزمردة', em:'☕', pricingType:'tier',
+        tiers:[{id:'t1',label:'٥٠ - ١٠٠ شخص',price:45},{id:'t2',label:'١٠١ - ١٥٠ شخص',price:65},{id:'t3',label:'١٥١ - ٢٠٠ شخص',price:85}],
+        includes:['شاي عربي وأجنبي','قهوة عربية','عاملتان للتقديم']},
+      {id:'p2', name:'باقة الضيافة الذهبية', em:'🫖', pricingType:'tier',
+        tiers:[{id:'t1',label:'٣٠ - ٦٠ شخص',price:75},{id:'t2',label:'٦١ - ١٠٠ شخص',price:105}],
+        includes:['شاي وقهوة وتمر','عاملة تقديم واحدة','فناجين فضية']},
+      {id:'p3', name:'باقة الاجتماعات', em:'🍵', pricingType:'tier',
+        tiers:[{id:'t1',label:'حتى ١٥ شخص',price:20},{id:'t2',label:'١٦ - ٣٠ شخص',price:30}],
+        includes:['قهوة عربية وسادة','ماء ومناديل']},
+    ],
+    services:[
+      {id:'s1', name:'طاولات عرض إضافية', desc:'طاولة مع تغطية قماش، السعر حسب العدد', pricingType:'tier',
+        tiers:[{id:'tt1',label:'١ - ٥ طاولات',price:8},{id:'tt2',label:'٦ - ١٠ طاولات',price:14}]},
+      {id:'s2', name:'حلى فاخر', desc:'تشكيلة حلويات مقدمة مع الشركاء - بالكيلو', pricingType:'perKg', ratePerKg:6, minKg:1},
+      {id:'s3', name:'عاملة تقديم إضافية', desc:'لمدة الحفل كامل', pricingType:'perUnit', unitLabel:'عاملة', price:20},
+      {id:'s6', name:'عصائر إضافية', desc:'حسب عدد الضيوف، التشكيلة يحددها مقدم الخدمة', pricingType:'tier',
+        tiers:[{id:'jt1',label:'حتى ٥٠ ضيف - نوعين عصير',price:12},{id:'jt2',label:'حتى ١٠٠ ضيف - عصائر مشكلة',price:22}]},
+    ]},
+  {id:'c2', name:'حلا الكويت', logo:'🍰', tag:'حلويات وكيك', status:'active', joinedAt: now-150*DAY, rating:4.6,
+    packages:[
+      {id:'p4', name:'صينية حلى مشكل', em:'🍮', pricingType:'perKg', ratePerKg:6, minKg:2, includes:['تشكيلة حلى مشكل','تغليف فاخر']},
+      {id:'p5', name:'باقة الكيك والحلى', em:'🍰', pricingType:'tier',
+        tiers:[{id:'t1',label:'حتى ٢٠ ضيف - كيكة صغيرة',price:35},{id:'t2',label:'حتى ٤٠ ضيف - كيكة وسط',price:55},{id:'t3',label:'حتى ٧٠ ضيف - كيكة كبيرة',price:80}],
+        includes:['كيكة حسب العدد','حلى إضافي']}
+    ], services:[]},
+  {id:'c3', name:'عبير العود', logo:'🌸', tag:'بخور واستقبال', status:'active', joinedAt: now-90*DAY, rating:4.9,
+    packages:[
+      {id:'p6', name:'باقة الاستقبال العطرية', em:'🌸', pricingType:'fixed', price:20, includes:['تبخير مدخل','عود ومسك للضيوف']},
+    ],
+    services:[
+      {id:'s4', name:'علبة عود إهداء للضيوف', desc:'قطعة واحدة لكل ضيف', pricingType:'perUnit', unitLabel:'ضيف', price:3},
+      {id:'s5', name:'زهور طاولة الاستقبال', desc:'تنسيق زهور طبيعية لطاولة واحدة', pricingType:'fixed', price:12},
+    ]},
+  {id:'c4', name:'ورد الشام', logo:'🌷', tag:'زهور وتنسيق حفلات', status:'pending', joinedAt: now-2*DAY,
+    packages:[{id:'p7', name:'باقة زهور الاستقبال', em:'🌷', pricingType:'fixed', price:15, includes:['تنسيق زهور بسيط لطاولة الاستقبال']}],
+    services:[]},
+  {id:'c5', name:'نكهات البيت', logo:'🍪', tag:'معجنات وحلويات منزلية', status:'suspended', joinedAt: now-60*DAY,
+    reason:'شكاوى متكررة من العملاء بخصوص تأخر التسليم',
+    packages:[{id:'p8', name:'صينية معجنات مشكلة', em:'🥐', pricingType:'perKg', ratePerKg:5, minKg:1, includes:['تشكيلة معجنات']}],
+    services:[]},
+];
+
+/* ---- الطلبات (لاحقًا: جدول orders + جدول order_items) ---- */
+let orders = [
+  {id:1, companyId:'c1', companyName:'بيت الضيافة', customerId:'u1', customer:'نورة العنزي', type:'services', status:'pending',
+    items:[{name:'طاولات عرض إضافية — ٦ - ١٠ طاولات', qty:1, price:14},{name:'حلى فاخر — ٣ كيلو', qty:1, price:18}],
+    total:32, notes:'حاب التسليم الساعة ٦ مساء', createdAt: now-60000, expiresAt: now-60000+5*60*1000},
+  {id:2, companyId:'c1', companyName:'بيت الضيافة', customerId:null, customer:'بدر الرشيدي', type:'package', status:'paid',
+    items:[{name:'باقة ضيافة الزمردة — ١٠١ - ١٥٠ شخص', qty:1, price:65},{name:'عاملة تقديم إضافية — 2 عاملة', qty:2, price:20}],
+    total:105, date:'2026-07-15', location:'قاعة الأنوار - حولي', guests:'130', notes:'', createdAt: now-3600000},
+  {id:3, companyId:'c3', companyName:'عبير العود', customerId:null, customer:'هيا صالح', type:'services', status:'disputed',
+    items:[{name:'علبة عود إهداء للضيوف — 30 ضيف', qty:30, price:3}], total:23,
+    issue:'العميلة تقول الطلب توصلها بدون علبة عود الإهداء رغم إنها دفعت ثمنها', raisedBy:'customer', createdAt: now-2*DAY},
+  {id:4, companyId:'c1', companyName:'بيت الضيافة', customerId:'u1', customer:'نورة العنزي', type:'package', status:'completed',
+    items:[{name:'باقة الاجتماعات — ١٦ - ٣٠ شخص', qty:1, price:30}], total:30, date:'2026-06-20', location:'مكتب الإدارة', guests:'22', createdAt: now-7*DAY},
+  {id:5, companyId:'c5', companyName:'نكهات البيت', customerId:null, customer:'أم سلطان', type:'services', status:'disputed',
+    items:[{name:'صينية معجنات مشكلة — 4 كيلو', qty:1, price:20}], total:40,
+    issue:'مقدم الخدمة يقول العميلة ألغت الطلب بعد التحضير، وتطلب استرجاع كامل المبلغ', raisedBy:'provider', createdAt: now-DAY},
+  {id:6, companyId:'c2', companyName:'حلا الكويت', customerId:null, customer:'ريم فهد', type:'package', status:'rejected',
+    items:[{name:'باقة الكيك والحلى — حتى ٤٠ ضيف - كيكة وسط', qty:1, price:55}], total:35, reason:'الكمية غير متوفرة بهذا التاريخ', createdAt: now-4*DAY},
+  {id:7, companyId:'c1', companyName:'بيت الضيافة', customerId:null, customer:'شيخة المطيري', type:'services', status:'expired',
+    items:[{name:'حلى فاخر — ٢ كيلو', qty:1, price:12}], total:12, reason:'لم يتم الرد خلال ٥ دقايق', createdAt: now-6*DAY},
+];
+let orderSeq=8;
+
+const orderStatusMap={
+  pending:{label:'بانتظار رد مقدم الخدمة',cls:'yellow'},
+  accepted:{label:'بانتظار دفع العميل',cls:'yellow'},
+  confirmed:{label:'بانتظار الدفع',cls:'yellow'},
+  paid:{label:'مؤكد',cls:'green'},
+  completed:{label:'تم التنفيذ',cls:'green'},
+  rejected:{label:'مرفوض',cls:'red'},
+  expired:{label:'انتهى الوقت',cls:'red'},
+  disputed:{label:'نزاع مفتوح',cls:'red'},
+  resolved:{label:'تم حل النزاع',cls:'green'},
+};
+const coStatusMap={
+  active:{label:'نشطة',cls:'green'},
+  pending:{label:'بانتظار المراجعة',cls:'yellow'},
+  suspended:{label:'موقوفة',cls:'red'},
+};
+
+/* =========================================================================
+   أدوات مشتركة
+   ========================================================================= */
+function fmtRemain(ms){
+  if(ms<0) ms=0;
+  const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function timeAgo(ts){
+  const diff=Date.now()-ts;
+  const mins=Math.floor(diff/60000);
+  if(mins<1) return 'الآن';
+  if(mins<60) return 'قبل '+mins+' د';
+  const hrs=Math.floor(mins/60);
+  if(hrs<24) return 'قبل '+hrs+' س';
+  return 'قبل '+Math.floor(hrs/24)+' يوم';
+}
+function dateStr(ts){
+  return new Date(ts).toLocaleDateString('ar-KW', {year:'numeric',month:'short',day:'numeric'});
+}
+function toggleCard(btn,key){
+  const el=document.getElementById('details-'+key);
+  const open=el.classList.toggle('open');
+  btn.textContent = open? 'إخفاء التفاصيل ▴' : 'عرض التفاصيل ▾';
+}
+function setDot(btn, show){
+  const existing=btn.querySelector('.dot');
+  if(existing) existing.remove();
+  if(show){ const d=document.createElement('span'); d.className='dot'; btn.appendChild(d); }
+}
+
+/* =========================================================================
+   تسجيل الدخول / الخروج / التوجيه حسب الدور
+   ========================================================================= */
+function login(role){
+  if(role==='customer') currentUser={id:'u1', name:'نورة العنزي', role:'customer'};
+  if(role==='provider') currentUser={id:'u2', name:'بيت الضيافة', role:'provider', companyId:'c1'};
+  if(role==='admin') currentUser={id:'u3', name:'مدير المنصة', role:'admin'};
+  showScreen(role==='customer'?'c-home':role==='provider'?'p-home':'a-home');
+}
+function logout(){
+  currentUser=null;
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('login').classList.add('active');
+  renderNav();
+}
+function renderAccountScreen(){
+  if(!currentUser) return;
+  const roleLabel = currentUser.role==='customer'?'حساب عميل':currentUser.role==='provider'?'حساب مقدم خدمة':'حساب مدير منصة';
+  document.getElementById('accountInfo').innerHTML='<div class="logo">👤</div><h1>'+currentUser.name+'</h1><p>'+roleLabel+'</p>';
+}
+
+/* =========================================================================
+   التوجيه بين الشاشات + شريط التنقل الديناميكي حسب الدور
+   ========================================================================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.cart-fab').forEach(function(e){e.remove();});
+  if(screenRenderers[id]) screenRenderers[id]();
+  if(id==='c-company') custRenderCartFab();
+  renderNav();
+  window.scrollTo(0,0);
+}
+function refreshCurrentScreen(){
+  const active=document.querySelector('.screen.active');
+  if(!active) return;
+  if(screenRenderers[active.id]) screenRenderers[active.id]();
+  renderNav();
+}
+function renderNav(){
+  const bar=document.getElementById('navBar');
+  if(!currentUser){ bar.style.display='none'; bar.innerHTML=''; return; }
+  bar.style.display='flex';
+  const activeEl=document.querySelector('.screen.active');
+  const activeId= activeEl? activeEl.id : '';
+  let items=[];
+  if(currentUser.role==='customer'){
+    items=[{id:'c-home',icon:'🏠',label:'الرئيسية'},{id:'c-orders',icon:'🧾',label:'طلباتي'},{id:'account',icon:'👤',label:'حسابي'}];
+  } else if(currentUser.role==='provider'){
+    const hasPending=orders.some(function(o){return o.status==='pending' && o.companyId===currentUser.companyId;});
+    items=[{id:'p-home',icon:'🏠',label:'الرئيسية'},{id:'p-orders',icon:'🧾',label:'الطلبات',dot:hasPending},{id:'p-catalog',icon:'📦',label:'بكجاتي'},{id:'account',icon:'👤',label:'حسابي'}];
+  } else {
+    const hasPendingCo=companies.some(function(c){return c.status==='pending';});
+    const hasDispute=orders.some(function(o){return o.status==='disputed';});
+    items=[{id:'a-home',icon:'🏠',label:'الرئيسية'},{id:'a-companies',icon:'🏢',label:'الشركات',dot:hasPendingCo},{id:'a-orders',icon:'🧾',label:'الطلبات',dot:hasDispute},{id:'account',icon:'👤',label:'حسابي'}];
+  }
+  bar.innerHTML='';
+  items.forEach(function(it){
+    const btn=document.createElement('button');
+    if(it.id===activeId) btn.className='active';
+    btn.innerHTML='<span>'+it.icon+'</span>'+it.label;
+    btn.onclick=function(){ showScreen(it.id); };
+    setDot(btn, !!it.dot);
+    bar.appendChild(btn);
+  });
+}
+
+/* =========================================================================
+   ===============================  CUSTOMER  =============================
+   ========================================================================= */
+let currentCoId=null, currentPkgId=null;
+let pkgState={tierId:null, kg:0};
+let selectedAddons={};
+let servicesCart={};
+let cfgKgTemp={}, tierAddonTemp={}, openConfigKey=null;
+
+function custPkgCardPriceLabel(pkg){
+  if(pkg.pricingType==='tier'){ const min=Math.min.apply(null, pkg.tiers.map(function(t){return t.price;})); return 'يبدأ من '+min+' د.ك'; }
+  if(pkg.pricingType==='perKg') return pkg.ratePerKg+' د.ك / كيلو';
+  return pkg.price+' د.ك';
+}
+function custPkgCardHint(pkg){
+  if(pkg.pricingType==='tier') return 'السعر حسب عدد الأشخاص';
+  if(pkg.pricingType==='perKg') return 'السعر بالكيلو';
+  return 'سعر ثابت';
+}
+function custRenderHome(){
+  const list=document.getElementById('c_companyList');
+  list.innerHTML='';
+  const activeCos=companies.filter(function(c){return c.status==='active';});
+  activeCos.forEach(function(co){
+    const row=document.createElement('div');
+    row.className='co-row';
+    row.onclick=function(){ custOpenCompany(co.id); };
+    row.innerHTML='<div class="logo">'+co.logo+'</div><div class="info"><b>'+co.name+'</b><span>'+co.tag+'</span></div><div class="arrow">‹</div>';
+    list.appendChild(row);
+  });
+}
+function custOpenCompany(id){
+  currentCoId=id;
+  const co=companies.find(function(c){return c.id===id;});
+  document.getElementById('c_coBadge').textContent=co.name;
+  document.getElementById('c_coHeader').innerHTML='<div class="logo">'+co.logo+'</div><h1>'+co.name+'</h1><p>'+co.tag+'</p>';
+  const pkgGrid=document.getElementById('c_pkgGrid');
+  pkgGrid.innerHTML='';
+  co.packages.forEach(function(p){
+    const el=document.createElement('div');
+    el.className='pkg-card';
+    el.onclick=function(){ custOpenPackage(p.id); };
+    el.innerHTML='<span class="em">'+p.em+'</span><b>'+p.name+'</b><div class="price">'+custPkgCardPriceLabel(p)+'</div><div class="hint">'+custPkgCardHint(p)+'</div>';
+    pkgGrid.appendChild(el);
+  });
+  const svcSection=document.getElementById('c_svcSection');
+  if(co.services && co.services.length){
+    svcSection.innerHTML='<h2>خدمات إضافية (اختياري - يمكن طلبها لوحدها)</h2><div id="c_svcList"></div>';
+    custRenderAddonList('c_svcList', co.services, co.id);
+  } else {
+    svcSection.innerHTML='<div class="hint-note" style="background:#fff7e7;border:1px solid #ead2aa;border-radius:16px;padding:12px;color:#6b421f">هذي الشركة تعرض بكجات جاهزة فقط، بدون خدمات إضافية منفصلة.</div>';
+  }
+  showScreen('c-company');
+}
+function custFindCompanyForContext(context){
+  return context==='pkg' ? companies.find(function(c){return c.id===currentCoId;}) : companies.find(function(c){return c.id===context;});
+}
+function custGetAddonState(svc, context){
+  if(context==='pkg') return selectedAddons[svc.id];
+  return (servicesCart[context]||{})[svc.id];
+}
+function custSetAddonState(svc, context, state){
+  if(context==='pkg'){ if(state===null) delete selectedAddons[svc.id]; else selectedAddons[svc.id]=state; }
+  else { if(!servicesCart[context]) servicesCart[context]={}; if(state===null) delete servicesCart[context][svc.id]; else servicesCart[context][svc.id]=state; }
+}
+function custAddonPriceHint(svc){
+  if(svc.pricingType==='tier'){ const min=Math.min.apply(null, svc.tiers.map(function(t){return t.price;})); return 'يبدأ من '+min+' د.ك'; }
+  if(svc.pricingType==='perKg') return svc.ratePerKg+' د.ك / كيلو';
+  if(svc.pricingType==='perUnit') return svc.price+' د.ك / '+svc.unitLabel;
+  return svc.price+' د.ك';
+}
+function custAddonRowHTML(svc, context){
+  const state=custGetAddonState(svc,context);
+  if(svc.pricingType==='perUnit'){
+    const qty=state?state.qty:0;
+    return '<div class="info"><b>'+svc.name+'</b><span>'+(svc.desc||'')+' — '+svc.price+' د.ك / '+svc.unitLabel+'</span></div>'+
+      '<div class="stepper"><button onclick="custChangeUnitQty(\''+svc.id+'\',\''+context+'\',-1)">−</button><span>'+qty+'</span><button onclick="custChangeUnitQty(\''+svc.id+'\',\''+context+'\',1)">+</button></div>';
+  }
+  if(svc.pricingType==='fixed'){
+    return '<div class="info"><b>'+svc.name+'</b><span>'+(svc.desc||'')+' — '+svc.price+' د.ك</span></div>'+
+      '<button class="addbtn '+(state?'added':'')+'" onclick="custToggleFixedAddon(\''+svc.id+'\',\''+context+'\')">'+(state?'✓ مضافة':'+ إضافة')+'</button>';
+  }
+  const rightBtn = state
+    ? '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><b style="color:var(--primary);font-size:13px">'+state.lineTotal+' د.ك</b><div style="display:flex;gap:6px"><button class="addbtn" onclick="custOpenAddonConfig(\''+svc.id+'\',\''+context+'\')">تعديل</button><button class="addbtn" style="background:var(--red)" onclick="custRemoveAddon(\''+svc.id+'\',\''+context+'\')">✕</button></div></div>'
+    : '<button class="addbtn" onclick="custOpenAddonConfig(\''+svc.id+'\',\''+context+'\')">+ إضافة</button>';
+  return '<div class="info"><b>'+svc.name+'</b><span>'+(svc.desc||'')+'</span><span style="color:'+(state?'var(--primary)':'var(--muted)')+';font-weight:'+(state?'700':'400')+'">'+(state?state.label:custAddonPriceHint(svc))+'</span></div>'+rightBtn;
+}
+function custRenderAddonList(containerId, services, context){
+  const wrap=document.getElementById(containerId);
+  wrap.innerHTML='';
+  services.forEach(function(s){
+    const row=document.createElement('div');
+    row.className='svc-row'; row.style.flexWrap='wrap';
+    row.id='addonrow-'+context+'-'+s.id;
+    row.innerHTML=custAddonRowHTML(s,context);
+    wrap.appendChild(row);
+    const cfg=document.createElement('div');
+    cfg.id='addoncfg-'+context+'-'+s.id; cfg.style.marginBottom='8px';
+    wrap.appendChild(cfg);
+  });
+}
+function custRerenderAddonRow(svc,context){
+  const row=document.getElementById('addonrow-'+context+'-'+svc.id);
+  if(row) row.innerHTML=custAddonRowHTML(svc,context);
+}
+function custUpdateTotals(context){
+  if(context==='pkg') custRenderTotalBar();
+  else custRenderCartFab();
+}
+function custChangeUnitQty(svcId,context,delta){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const state=custGetAddonState(svc,context)||{qty:0};
+  const newQty=Math.max(0,(state.qty||0)+delta);
+  if(newQty===0) custSetAddonState(svc,context,null);
+  else custSetAddonState(svc,context,{qty:newQty, lineTotal:newQty*svc.price, label:newQty+' '+svc.unitLabel});
+  custRerenderAddonRow(svc,context);
+  custUpdateTotals(context);
+}
+function custToggleFixedAddon(svcId,context){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const state=custGetAddonState(svc,context);
+  if(state) custSetAddonState(svc,context,null);
+  else custSetAddonState(svc,context,{lineTotal:svc.price, label:'مضافة'});
+  custRerenderAddonRow(svc,context);
+  custUpdateTotals(context);
+}
+function custOpenAddonConfig(svcId,context){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const cfgId='addoncfg-'+context+'-'+svcId;
+  const cfgDiv=document.getElementById(cfgId);
+  if(!cfgDiv) return;
+  if(openConfigKey && openConfigKey!==cfgId){ const prev=document.getElementById(openConfigKey); if(prev){ prev.innerHTML=''; prev.className=''; } }
+  if(cfgDiv.innerHTML){ cfgDiv.innerHTML=''; cfgDiv.className=''; openConfigKey=null; return; }
+  openConfigKey=cfgId;
+  const key=context+'-'+svcId;
+  if(svc.pricingType==='tier'){
+    tierAddonTemp[key]=svc.tiers[0].id;
+    cfgDiv.className='card';
+    cfgDiv.innerHTML='<div id="tieropts-'+context+'-'+svcId+'"></div><button class="btn" style="margin-top:6px" onclick="custConfirmTierAddon(\''+context+'\',\''+svcId+'\')">تأكيد الإضافة</button>';
+    custRenderTierOptionsForAddon(svc,context);
+  } else if(svc.pricingType==='perKg'){
+    cfgKgTemp[key]=svc.minKg;
+    cfgDiv.className='card';
+    cfgDiv.innerHTML='<label>الكمية بالكيلو (الحد الأدنى '+svc.minKg+' كيلو)</label>'+
+      '<div class="stepper"><button onclick="custChangeCfgKg(\''+context+'\',\''+svcId+'\',-1)">−</button><span id="cfgkgval-'+context+'-'+svcId+'">'+svc.minKg+'</span><button onclick="custChangeCfgKg(\''+context+'\',\''+svcId+'\',1)">+</button></div>'+
+      '<button class="btn" style="margin-top:10px" onclick="custConfirmKgAddon(\''+context+'\',\''+svcId+'\')">تأكيد الإضافة</button>';
+  }
+}
+function custRenderTierOptionsForAddon(svc,context){
+  const key=context+'-'+svc.id;
+  const list=document.getElementById('tieropts-'+context+'-'+svc.id);
+  if(!list) return;
+  list.innerHTML='';
+  svc.tiers.forEach(function(t){
+    const el=document.createElement('div');
+    el.className='tier-option'+(tierAddonTemp[key]===t.id?' selected':'');
+    el.onclick=function(){ tierAddonTemp[key]=t.id; custRenderTierOptionsForAddon(svc,context); };
+    el.innerHTML='<span>'+(tierAddonTemp[key]===t.id?'●':'○')+' '+t.label+'</span><b>'+t.price+' د.ك</b>';
+    list.appendChild(el);
+  });
+}
+function custConfirmTierAddon(context,svcId){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const key=context+'-'+svcId;
+  const tier=svc.tiers.find(function(t){return t.id===tierAddonTemp[key];});
+  custSetAddonState(svc,context,{lineTotal:tier.price, label:tier.label});
+  const cfgDiv=document.getElementById('addoncfg-'+context+'-'+svcId);
+  cfgDiv.innerHTML=''; cfgDiv.className=''; openConfigKey=null;
+  custRerenderAddonRow(svc,context);
+  custUpdateTotals(context);
+}
+function custChangeCfgKg(context,svcId,d){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const key=context+'-'+svcId;
+  cfgKgTemp[key]=Math.max(svc.minKg, (cfgKgTemp[key]||svc.minKg)+d);
+  document.getElementById('cfgkgval-'+context+'-'+svcId).textContent=cfgKgTemp[key];
+}
+function custConfirmKgAddon(context,svcId){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  const key=context+'-'+svcId;
+  const kg=cfgKgTemp[key]||svc.minKg;
+  custSetAddonState(svc,context,{lineTotal:+(svc.ratePerKg*kg).toFixed(2), label:kg+' كيلو', kg:kg});
+  const cfgDiv=document.getElementById('addoncfg-'+context+'-'+svcId);
+  cfgDiv.innerHTML=''; cfgDiv.className=''; openConfigKey=null;
+  custRerenderAddonRow(svc,context);
+  custUpdateTotals(context);
+}
+function custRemoveAddon(svcId,context){
+  const co=custFindCompanyForContext(context);
+  const svc=co.services.find(function(s){return s.id===svcId;});
+  custSetAddonState(svc,context,null);
+  const cfgDiv=document.getElementById('addoncfg-'+context+'-'+svcId);
+  if(cfgDiv){ cfgDiv.innerHTML=''; cfgDiv.className=''; }
+  openConfigKey=null;
+  custRerenderAddonRow(svc,context);
+  custUpdateTotals(context);
+}
+function custRenderCartFab(){
+  document.querySelectorAll('.cart-fab').forEach(function(e){e.remove();});
+  if(!currentCoId || !document.getElementById('c-company').classList.contains('active')) return;
+  const cart=servicesCart[currentCoId];
+  if(!cart) return;
+  let count=0,total=0;
+  Object.keys(cart).forEach(function(sid){ const st=cart[sid]; if(!st) return; count++; total+=st.lineTotal; });
+  if(count===0) return;
+  const fab=document.createElement('button');
+  fab.className='cart-fab';
+  fab.textContent='عرض السلة ('+count+') — '+total+' د.ك';
+  fab.onclick=custOpenServicesReview;
+  document.getElementById('app').appendChild(fab);
+}
+function custOpenServicesReview(){
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const cart=servicesCart[currentCoId]||{};
+  document.getElementById('c_svcReviewCoName').textContent=co.name;
+  const listEl=document.getElementById('c_svcReviewList');
+  listEl.innerHTML='';
+  let total=0;
+  Object.keys(cart).forEach(function(sid){
+    const st=cart[sid]; if(!st) return;
+    const svc=co.services.find(function(s){return s.id===sid;});
+    total+=st.lineTotal;
+    const row=document.createElement('div');
+    row.className='svc-row';
+    row.innerHTML='<div class="info"><b>'+svc.name+'</b><span>'+st.label+'</span></div><div class="price">'+st.lineTotal+' د.ك</div>';
+    listEl.appendChild(row);
+  });
+  document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
+  const bar=document.createElement('div');
+  bar.className='total-bar';
+  bar.innerHTML='<div class="sum"><span>الإجمالي التقديري</span><b>'+total+' د.ك</b></div><button class="btn" onclick="custSendServicesRequest('+total+')">إرسال الطلب</button>';
+  document.getElementById('c-svcReview').appendChild(bar);
+  showScreen('c-svcReview');
+}
+function custOrderItemRowHTML(i){
+  const qtyLine = i.qty>1 ? '<span>الكمية: '+i.qty+'</span>' : '';
+  return '<div class="svc-row"><div class="info"><b>'+i.name+'</b>'+qtyLine+'</div><div class="price">'+(i.qty*i.price)+' د.ك</div></div>';
+}
+function custSendServicesRequest(total){
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const notes=document.getElementById('c_svcNotes').value;
+  const cart=servicesCart[currentCoId]||{};
+  const items=Object.keys(cart).map(function(sid){
+    const svc=co.services.find(function(s){return s.id===sid;});
+    const st=cart[sid];
+    return {name:svc.name+' — '+st.label, qty:1, price:st.lineTotal};
+  });
+  const order={id:orderSeq++, companyId:co.id, companyName:co.name, customerId:currentUser.id, customer:currentUser.name,
+    type:'services', items:items, total:total, notes:notes, status:'pending', createdAt:Date.now(), expiresAt:Date.now()+5*60*1000};
+  orders.unshift(order);
+  servicesCart[currentCoId]={};
+  document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
+  window._custPendingOrderId=order.id;
+  document.getElementById('c_pendingCoName').textContent=co.name;
+  document.getElementById('c_countdownText').textContent='05:00';
+  document.getElementById('c_pendingSummary').innerHTML=items.map(custOrderItemRowHTML).join('')+
+    '<div class="divider"></div><div style="display:flex;justify-content:space-between;font-weight:900;color:var(--primary)"><span>الإجمالي</span><span>'+total+' د.ك</span></div>';
+  showScreen('c-pending');
+}
+function custPkgBasePrice(pkg){
+  if(pkg.pricingType==='tier') return pkg.tiers.find(function(t){return t.id===pkgState.tierId;}).price;
+  if(pkg.pricingType==='perKg') return +(pkg.ratePerKg*pkgState.kg).toFixed(2);
+  return pkg.price;
+}
+function custPkgBaseLabel(pkg){
+  if(pkg.pricingType==='tier') return pkg.name+' — '+pkg.tiers.find(function(t){return t.id===pkgState.tierId;}).label;
+  if(pkg.pricingType==='perKg') return pkg.name+' — '+pkgState.kg+' كيلو';
+  return pkg.name;
+}
+function custRenderPkgPricingCard(pkg){
+  const card=document.getElementById('c_pkgPricingCard');
+  if(pkg.pricingType==='tier'){
+    pkgState.tierId=pkg.tiers[0].id;
+    card.innerHTML='<h2>اختاري الفئة المناسبة لعدد الأشخاص</h2><div id="c_pkgTierList"></div><p class="hint-note">الفئات وأسعارها محددة مسبقًا من مقدم الخدمة</p>';
+    custRenderPkgTierList(pkg);
+  } else if(pkg.pricingType==='perKg'){
+    pkgState.kg=pkg.minKg;
+    card.innerHTML='<h2>الكمية بالكيلو</h2><div class="stepper"><button onclick="custChangePkgKg(-1)">−</button><span id="c_pkgKgVal">'+pkg.minKg+'</span><button onclick="custChangePkgKg(1)">+</button></div><p class="hint-note">السعر '+pkg.ratePerKg+' د.ك للكيلو، الحد الأدنى '+pkg.minKg+' كيلو</p>';
+  } else {
+    card.innerHTML='<h2>السعر</h2><p>سعر ثابت لهذا البكج ('+pkg.price+' د.ك) بغض النظر عن عدد الأشخاص.</p>';
+  }
+}
+function custRenderPkgTierList(pkg){
+  const list=document.getElementById('c_pkgTierList');
+  list.innerHTML='';
+  pkg.tiers.forEach(function(t){
+    const el=document.createElement('div');
+    el.className='tier-option'+(pkgState.tierId===t.id?' selected':'');
+    el.onclick=function(){ pkgState.tierId=t.id; custRenderPkgTierList(pkg); custRenderTotalBar(); };
+    el.innerHTML='<span>'+(pkgState.tierId===t.id?'●':'○')+' '+t.label+'</span><b>'+t.price+' د.ك</b>';
+    list.appendChild(el);
+  });
+}
+function custChangePkgKg(d){
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const pkg=co.packages.find(function(p){return p.id===currentPkgId;});
+  pkgState.kg=Math.max(pkg.minKg, pkgState.kg+d);
+  document.getElementById('c_pkgKgVal').textContent=pkgState.kg;
+  custRenderTotalBar();
+}
+function custOpenPackage(pkgId){
+  currentPkgId=pkgId; pkgState={tierId:null, kg:0}; selectedAddons={}; openConfigKey=null;
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const pkg=co.packages.find(function(p){return p.id===pkgId;});
+  const chips=(pkg.includes||[]).map(function(i){return '<span>'+i+'</span>';}).join('');
+  document.getElementById('c_pkgHeader').innerHTML='<div class="logo">'+pkg.em+'</div><h1>'+pkg.name+'</h1><p>'+co.name+'</p><div class="chip">'+chips+'</div>';
+  document.getElementById('c_pkgGuests').value='';
+  document.getElementById('c_pkgDate').value='';
+  document.getElementById('c_pkgLocation').value='';
+  document.getElementById('c_pkgNotes').value='';
+  custRenderPkgPricingCard(pkg);
+  const addonsCard=document.getElementById('c_pkgAddonsCard');
+  if(co.services && co.services.length){ addonsCard.style.display='block'; custRenderAddonList('c_pkgAddonsList', co.services, 'pkg'); }
+  else addonsCard.style.display='none';
+  custRenderTotalBar();
+  showScreen('c-pkgDetail');
+}
+function custRenderTotalBar(){
+  document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const pkg=co.packages.find(function(p){return p.id===currentPkgId;});
+  let total=custPkgBasePrice(pkg);
+  Object.keys(selectedAddons).forEach(function(sid){ total+=selectedAddons[sid].lineTotal; });
+  const bar=document.createElement('div');
+  bar.className='total-bar';
+  bar.innerHTML='<div class="sum"><span>السعر النهائي</span><b>'+total+' د.ك</b></div><button class="btn" onclick="custConfirmPackageOrder('+total+')">تأكيد الطلب</button>';
+  document.getElementById('c-pkgDetail').appendChild(bar);
+}
+function custConfirmPackageOrder(total){
+  const co=companies.find(function(c){return c.id===currentCoId;});
+  const pkg=co.packages.find(function(p){return p.id===currentPkgId;});
+  const guests=document.getElementById('c_pkgGuests').value;
+  const date=document.getElementById('c_pkgDate').value;
+  const location=document.getElementById('c_pkgLocation').value;
+  const notes=document.getElementById('c_pkgNotes').value;
+  const items=[{name:custPkgBaseLabel(pkg), qty:1, price:custPkgBasePrice(pkg)}];
+  Object.keys(selectedAddons).forEach(function(sid){
+    const svc=co.services.find(function(s){return s.id===sid;});
+    const st=selectedAddons[sid];
+    items.push({name:svc.name+' — '+st.label, qty:1, price:st.lineTotal});
+  });
+  const order={id:orderSeq++, companyId:co.id, companyName:co.name, customerId:currentUser.id, customer:currentUser.name,
+    type:'package', items:items, total:total, guests:guests, date:date, location:location, notes:notes, status:'confirmed', createdAt:Date.now()};
+  orders.unshift(order);
+  document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
+  custGoToPayment(order);
+}
+function custGoToPayment(order){
+  document.getElementById('c_paymentCoName').textContent=order.companyName;
+  let html=order.items.map(custOrderItemRowHTML).join('');
+  if(order.guests){ html+='<p style="margin-top:8px;font-size:12px">عدد الضيوف المتوقع: '+order.guests+' (لغرض التحضير فقط، ما يؤثر على السعر)</p>'; }
+  document.getElementById('c_paymentSummary').innerHTML=html;
+  document.getElementById('c_paymentTotal').textContent=order.total+' د.ك';
+  window._custPayingOrder=order;
+  showScreen('c-payment');
+}
+function custCompletePayment(){
+  const order=window._custPayingOrder;
+  order.status='paid';
+  document.getElementById('c_successText').textContent='طلبك من '+order.companyName+' تأكد بنجاح، وتم الدفع بمبلغ '+order.total+' د.ك.';
+  showScreen('c-success');
+}
+function custRenderOrders(){
+  const list=document.getElementById('c_ordersList');
+  const myOrders=orders.filter(function(o){return o.customerId===currentUser.id;});
+  if(myOrders.length===0){ list.innerHTML='<div class="empty"><span class="em">🧾</span>ما عندك طلبات بعد</div>'; return; }
+  list.innerHTML='';
+  myOrders.forEach(function(o){
+    const st=orderStatusMap[o.status];
+    const row=document.createElement('div');
+    row.className='order-row';
+    const chips=o.items.map(function(i){return '<span>'+i.name+'</span>';}).join('');
+    const guestsLine=o.guests?'<p style="margin:4px 0 0;font-size:11.5px">عدد الضيوف المتوقع: '+o.guests+'</p>':'';
+    row.innerHTML='<div class="top2"><b>'+o.companyName+'</b><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
+      '<p style="margin:0">'+(o.type==='package'?'طلب بكج':'طلب خدمات متفرقة')+' — الإجمالي '+o.total+' د.ك</p>'+
+      guestsLine+'<div class="chip">'+chips+'</div>';
+    list.appendChild(row);
+  });
+}
+
+/* =========================================================================
+   ===============================  PROVIDER  ==============================
+   ========================================================================= */
+let provOrderTab='pending';
+let editingPkgId=null, editingSvcId=null;
+let tierRowsTemp=[];
+
+function provMyCo(){ return companies.find(function(c){return c.id===currentUser.companyId;}); }
+
+function provRenderHome(){
+  const myCo=provMyCo();
+  document.getElementById('p_homeLogo').textContent=myCo.logo;
+  document.getElementById('p_homeCoName').textContent=myCo.name;
+  const myOrders=orders.filter(function(o){return o.companyId===myCo.id;});
+  const pending=myOrders.filter(function(o){return o.status==='pending';});
+  const upcoming=myOrders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';});
+  document.getElementById('p_statGrid').innerHTML=
+    '<div class="stat-box"><b>'+pending.length+'</b><span>بانتظار ردك</span></div>'+
+    '<div class="stat-box"><b>'+upcoming.length+'</b><span>حجوزات قادمة</span></div>'+
+    '<div class="stat-box"><b>'+myCo.packages.length+'</b><span>بكجات مفعّلة</span></div>';
+  const urgentArea=document.getElementById('p_urgentArea');
+  if(pending.length>0){
+    const o=pending[0];
+    const remaining=o.expiresAt-Date.now();
+    urgentArea.innerHTML='<div class="urgent-card"><h2>⏰ عندك طلب يحتاج ردك الآن</h2>'+
+      '<p>'+o.customer+' — '+o.total+' د.ك — الوقت المتبقي: <span class="countdown-mini">'+fmtRemain(remaining)+'</span></p>'+
+      '<div class="entity-card" style="margin-top:8px;box-shadow:none">'+provRenderOrderDetailsHTML(o)+'</div>'+
+      '<div class="actions"><button class="btn green" onclick="provAcceptOrder('+o.id+')">قبول</button><button class="btn danger" onclick="provRejectOrder('+o.id+')">رفض</button></div>'+
+      (pending.length>1? '<p style="margin-top:8px;font-size:11.5px">وعندك '+(pending.length-1)+' طلب ثاني بانتظار ردك</p>':'')+
+      '<button class="btn secondary" onclick="showScreen(\'p-orders\')">عرض كل الطلبات</button></div>';
+  } else { urgentArea.innerHTML=''; }
+}
+function provRenderOrdersScreen(){
+  const myCo=provMyCo();
+  const myOrders=orders.filter(function(o){return o.companyId===myCo.id;});
+  const pendingCount=myOrders.filter(function(o){return o.status==='pending';}).length;
+  const upcomingCount=myOrders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';}).length;
+  const historyCount=myOrders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';}).length;
+  document.getElementById('p_orderTabBar').innerHTML=
+    '<button class="'+(provOrderTab==='pending'?'active':'')+'" onclick="provSwitchOrderTab(\'pending\')">بانتظار الرد ('+pendingCount+')</button>'+
+    '<button class="'+(provOrderTab==='upcoming'?'active':'')+'" onclick="provSwitchOrderTab(\'upcoming\')">الحجوزات القادمة ('+upcomingCount+')</button>'+
+    '<button class="'+(provOrderTab==='history'?'active':'')+'" onclick="provSwitchOrderTab(\'history\')">السجل ('+historyCount+')</button>';
+  provRenderOrdersList();
+}
+function provSwitchOrderTab(tab){ provOrderTab=tab; provRenderOrdersScreen(); }
+function provRenderOrdersList(){
+  const myCo=provMyCo();
+  const wrap=document.getElementById('p_ordersListArea');
+  let list=orders.filter(function(o){return o.companyId===myCo.id;});
+  if(provOrderTab==='pending') list=list.filter(function(o){return o.status==='pending';});
+  else if(provOrderTab==='upcoming') list=list.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';});
+  else list=list.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';});
+  list=list.slice().sort(function(a,b){return b.createdAt-a.createdAt;});
+  if(list.length===0){ wrap.innerHTML='<div class="empty"><span class="em">🧾</span>ماكو طلبات هنا حاليًا</div>'; return; }
+  wrap.innerHTML='';
+  list.forEach(function(o){ wrap.appendChild(provBuildOrderCard(o)); });
+}
+function provRenderOrderDetailsHTML(o){
+  let html=o.items.map(function(i){return '<div class="li"><span>'+i.name+(i.qty>1?' (الكمية: '+i.qty+')':'')+'</span><span>'+(i.qty*i.price)+' د.ك</span></div>';}).join('');
+  if(o.type==='package'){
+    if(o.date) html+='<div class="li"><span>التاريخ</span><span>'+o.date+'</span></div>';
+    if(o.location) html+='<div class="li"><span>الموقع</span><span>'+o.location+'</span></div>';
+    if(o.guests) html+='<div class="li"><span>عدد الضيوف المتوقع</span><span>'+o.guests+'</span></div>';
+  }
+  if(o.notes) html+='<div class="li"><span>ملاحظات العميل</span><span>'+o.notes+'</span></div>';
+  if(o.reason) html+='<div class="li"><span>السبب</span><span>'+o.reason+'</span></div>';
+  return html;
+}
+function provBuildOrderCard(o){
+  const st=orderStatusMap[o.status];
+  const card=document.createElement('div');
+  card.className='entity-card';
+  let countdownLine='';
+  if(o.status==='pending') countdownLine='<div class="meta">الوقت المتبقي للرد: <span class="countdown-mini">'+fmtRemain(o.expiresAt-Date.now())+'</span></div>';
+  let actions='';
+  if(o.status==='pending') actions='<div class="actions"><button class="btn green" onclick="provAcceptOrder('+o.id+')">قبول</button><button class="btn danger" onclick="provRejectOrder('+o.id+')">رفض</button></div>';
+  else if(o.status==='accepted'||o.status==='confirmed') actions='<div class="actions"><button class="btn secondary" onclick="provSimulateCustomerPay('+o.id+')">محاكاة: دفع العميل</button></div>';
+  else if(o.status==='paid') actions='<div class="actions"><button class="btn secondary" onclick="provMarkCompleted('+o.id+')">تم التنفيذ</button></div>';
+  card.innerHTML='<div class="head"><div class="info"><b>'+o.customer+'</b><div class="meta">'+(o.type==='package'?'طلب بكج':'طلب خدمات متفرقة')+' — '+timeAgo(o.createdAt)+'</div></div><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
+    countdownLine+'<div class="meta" style="margin-top:4px">الإجمالي: <b style="color:var(--primary)">'+o.total+' د.ك</b></div>'+
+    '<button class="toggle" onclick="toggleCard(this,\'p-ord-'+o.id+'\')">عرض التفاصيل ▾</button>'+
+    '<div class="details" id="details-p-ord-'+o.id+'">'+provRenderOrderDetailsHTML(o)+'</div>'+actions;
+  return card;
+}
+function provAcceptOrder(id){ orders.find(function(x){return x.id===id;}).status='accepted'; refreshCurrentScreen(); }
+function provRejectOrder(id){
+  const o=orders.find(function(x){return x.id===id;});
+  const reason=window.prompt('سبب الرفض (اختياري) - يوصل للعميل:','ما نقدر نوفر هذا الطلب هالمرة');
+  o.status='rejected'; o.reason=reason||'اعتذر مقدم الخدمة عن توفير الطلب';
+  refreshCurrentScreen();
+}
+function provSimulateCustomerPay(id){ orders.find(function(x){return x.id===id;}).status='paid'; refreshCurrentScreen(); }
+function provMarkCompleted(id){ orders.find(function(x){return x.id===id;}).status='completed'; refreshCurrentScreen(); }
+
+function provPkgPriceSummary(pkg){
+  if(pkg.pricingType==='tier') return pkg.tiers.length+' فئات — يبدأ من '+Math.min.apply(null,pkg.tiers.map(function(t){return t.price;}))+' د.ك';
+  if(pkg.pricingType==='perKg') return pkg.ratePerKg+' د.ك / كيلو';
+  return pkg.price+' د.ك (ثابت)';
+}
+function provSvcPriceSummary(svc){
+  if(svc.pricingType==='tier') return svc.tiers.length+' فئات — يبدأ من '+Math.min.apply(null,svc.tiers.map(function(t){return t.price;}))+' د.ك';
+  if(svc.pricingType==='perKg') return svc.ratePerKg+' د.ك / كيلو';
+  if(svc.pricingType==='perUnit') return svc.price+' د.ك / '+svc.unitLabel;
+  return svc.price+' د.ك (ثابت)';
+}
+function provRenderCatalog(){
+  const myCo=provMyCo();
+  const pkgWrap=document.getElementById('p_pkgManageList');
+  pkgWrap.innerHTML='';
+  if(myCo.packages.length===0) pkgWrap.innerHTML='<div class="empty"><span class="em">📦</span>ما عندك بكجات بعد</div>';
+  myCo.packages.forEach(function(p){
+    const row=document.createElement('div');
+    row.className='list-item-manage';
+    row.innerHTML='<span class="em">'+p.em+'</span><div class="info"><b>'+p.name+'</b><span>'+provPkgPriceSummary(p)+'</span></div><div class="acts"><button class="icon-btn" onclick="provOpenPkgForm(\''+p.id+'\')">تعديل</button></div>';
+    pkgWrap.appendChild(row);
+  });
+  const svcWrap=document.getElementById('p_svcManageList');
+  svcWrap.innerHTML='';
+  if(myCo.services.length===0) svcWrap.innerHTML='<div class="empty"><span class="em">➕</span>ما عندك خدمات إضافية بعد</div>';
+  myCo.services.forEach(function(s){
+    const row=document.createElement('div');
+    row.className='list-item-manage';
+    row.innerHTML='<span class="em">✨</span><div class="info"><b>'+s.name+'</b><span>'+provSvcPriceSummary(s)+'</span></div><div class="acts"><button class="icon-btn" onclick="provOpenSvcForm(\''+s.id+'\')">تعديل</button></div>';
+    svcWrap.appendChild(row);
+  });
+}
+function provOpenPkgForm(pkgId){
+  editingPkgId=pkgId;
+  const myCo=provMyCo();
+  const pkg = pkgId? myCo.packages.find(function(p){return p.id===pkgId;}) : null;
+  document.getElementById('p_pkgFormBadge').textContent = pkg? 'تعديل البكج' : 'بكج جديد';
+  document.getElementById('p_pkgFName').value = pkg? pkg.name : '';
+  document.getElementById('p_pkgFEmoji').value = pkg? pkg.em : '✨';
+  document.getElementById('p_pkgFIncludes').value = pkg && pkg.includes? pkg.includes.join('\n') : '';
+  document.getElementById('p_pkgFType').value = pkg? pkg.pricingType : 'tier';
+  document.getElementById('p_pkgFDeleteBtn').style.display = pkg? 'block':'none';
+  tierRowsTemp = pkg && pkg.pricingType==='tier' ? pkg.tiers.map(function(t){return {label:t.label,price:t.price};}) : [{label:'',price:''}];
+  provRenderPkgFormPricing(pkg);
+  showScreen('p-pkgForm');
+}
+function provRenderPkgFormPricing(pkg){
+  const type=document.getElementById('p_pkgFType').value;
+  const area=document.getElementById('p_pkgFPricingArea');
+  if(type==='tier'){
+    if(!tierRowsTemp || tierRowsTemp.length===0) tierRowsTemp=[{label:'',price:''}];
+    area.innerHTML='<label>الفئات وأسعارها (حددي كل فئة وسعرها بنفسك)</label><div id="p_pkgTierRows"></div><button type="button" class="add-row-btn" onclick="provAddPkgTierRow()">+ إضافة فئة</button>';
+    provRenderPkgTierRows();
+  } else if(type==='perKg'){
+    area.innerHTML='<label>السعر لكل كيلو (د.ك)</label><input type="number" id="p_pkgFRate" value="'+(pkg&&pkg.ratePerKg||'')+'">'+
+      '<label>الحد الأدنى بالكيلو</label><input type="number" id="p_pkgFMinKg" value="'+(pkg&&pkg.minKg||1)+'">';
+  } else {
+    area.innerHTML='<label>السعر الثابت (د.ك)</label><input type="number" id="p_pkgFFixedPrice" value="'+(pkg&&pkg.price||'')+'">';
+  }
+}
+function provRenderPkgTierRows(){
+  const wrap=document.getElementById('p_pkgTierRows');
+  wrap.innerHTML='';
+  tierRowsTemp.forEach(function(row,idx){
+    const div=document.createElement('div');
+    div.className='tier-row';
+    div.innerHTML='<input placeholder="مثال: ٥٠ - ١٠٠ شخص" value="'+(row.label||'')+'" oninput="tierRowsTemp['+idx+'].label=this.value">'+
+      '<input class="price-in" type="number" placeholder="د.ك" value="'+(row.price!==''?row.price:'')+'" oninput="tierRowsTemp['+idx+'].price=this.value">'+
+      '<button type="button" class="remove-row" onclick="provRemovePkgTierRow('+idx+')">✕</button>';
+    wrap.appendChild(div);
+  });
+}
+function provAddPkgTierRow(){ tierRowsTemp.push({label:'',price:''}); provRenderPkgTierRows(); }
+function provRemovePkgTierRow(idx){ if(tierRowsTemp.length>1){ tierRowsTemp.splice(idx,1); provRenderPkgTierRows(); } }
+function provSavePackageForm(){
+  const name=document.getElementById('p_pkgFName').value.trim();
+  if(!name){ alert('اكتبي اسم البكج'); return; }
+  const em=document.getElementById('p_pkgFEmoji').value.trim()||'✨';
+  const includesRaw=document.getElementById('p_pkgFIncludes').value.trim();
+  const includes=includesRaw? includesRaw.split('\n').map(function(s){return s.trim();}).filter(Boolean) : [];
+  const type=document.getElementById('p_pkgFType').value;
+  let pkgObj={id: editingPkgId||('p'+Date.now()), name:name, em:em, includes:includes, pricingType:type};
+  if(type==='tier'){
+    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';}).map(function(r,i){return {id:'t'+i,label:r.label,price:+r.price};});
+    if(tiers.length===0){ alert('أضيفي فئة وحدة على الأقل بسعرها'); return; }
+    pkgObj.tiers=tiers;
+  } else if(type==='perKg'){
+    pkgObj.ratePerKg=+document.getElementById('p_pkgFRate').value||0;
+    pkgObj.minKg=+document.getElementById('p_pkgFMinKg').value||1;
+  } else { pkgObj.price=+document.getElementById('p_pkgFFixedPrice').value||0; }
+  const myCo=provMyCo();
+  if(editingPkgId){ const idx=myCo.packages.findIndex(function(p){return p.id===editingPkgId;}); myCo.packages[idx]=pkgObj; }
+  else { myCo.packages.push(pkgObj); }
+  showScreen('p-catalog');
+}
+function provDeletePackageForm(){
+  if(!confirm('متأكدة تبين تحذفين هذا البكج؟')) return;
+  const myCo=provMyCo();
+  myCo.packages=myCo.packages.filter(function(p){return p.id!==editingPkgId;});
+  showScreen('p-catalog');
+}
+function provOpenSvcForm(svcId){
+  editingSvcId=svcId;
+  const myCo=provMyCo();
+  const svc = svcId? myCo.services.find(function(s){return s.id===svcId;}) : null;
+  document.getElementById('p_svcFormBadge').textContent = svc? 'تعديل الخدمة' : 'خدمة جديدة';
+  document.getElementById('p_svcFName').value = svc? svc.name : '';
+  document.getElementById('p_svcFDesc').value = svc? (svc.desc||'') : '';
+  document.getElementById('p_svcFType').value = svc? svc.pricingType : 'tier';
+  document.getElementById('p_svcFDeleteBtn').style.display = svc? 'block':'none';
+  tierRowsTemp = svc && svc.pricingType==='tier' ? svc.tiers.map(function(t){return {label:t.label,price:t.price};}) : [{label:'',price:''}];
+  provRenderSvcFormPricing(svc);
+  showScreen('p-svcForm');
+}
+function provRenderSvcFormPricing(svc){
+  const type=document.getElementById('p_svcFType').value;
+  const area=document.getElementById('p_svcFPricingArea');
+  if(type==='tier'){
+    if(!tierRowsTemp || tierRowsTemp.length===0) tierRowsTemp=[{label:'',price:''}];
+    area.innerHTML='<label>الفئات وأسعارها</label><div id="p_svcTierRows"></div><button type="button" class="add-row-btn" onclick="provAddSvcTierRow()">+ إضافة فئة</button>';
+    provRenderSvcTierRows();
+  } else if(type==='perKg'){
+    area.innerHTML='<label>السعر لكل كيلو (د.ك)</label><input type="number" id="p_svcFRate" value="'+(svc&&svc.ratePerKg||'')+'">'+
+      '<label>الحد الأدنى بالكيلو</label><input type="number" id="p_svcFMinKg" value="'+(svc&&svc.minKg||1)+'">';
+  } else if(type==='perUnit'){
+    area.innerHTML='<label>وحدة القياس (مثال: عاملة / ضيف / قطعة)</label><input id="p_svcFUnitLabel" value="'+(svc&&svc.unitLabel||'')+'">'+
+      '<label>السعر لكل وحدة (د.ك)</label><input type="number" id="p_svcFUnitPrice" value="'+(svc&&svc.price||'')+'">';
+  } else { area.innerHTML='<label>السعر الثابت (د.ك)</label><input type="number" id="p_svcFFixedPrice" value="'+(svc&&svc.price||'')+'">'; }
+}
+function provRenderSvcTierRows(){
+  const wrap=document.getElementById('p_svcTierRows');
+  wrap.innerHTML='';
+  tierRowsTemp.forEach(function(row,idx){
+    const div=document.createElement('div');
+    div.className='tier-row';
+    div.innerHTML='<input placeholder="مثال: ٦ - ١٠ طاولات" value="'+(row.label||'')+'" oninput="tierRowsTemp['+idx+'].label=this.value">'+
+      '<input class="price-in" type="number" placeholder="د.ك" value="'+(row.price!==''?row.price:'')+'" oninput="tierRowsTemp['+idx+'].price=this.value">'+
+      '<button type="button" class="remove-row" onclick="provRemoveSvcTierRow('+idx+')">✕</button>';
+    wrap.appendChild(div);
+  });
+}
+function provAddSvcTierRow(){ tierRowsTemp.push({label:'',price:''}); provRenderSvcTierRows(); }
+function provRemoveSvcTierRow(idx){ if(tierRowsTemp.length>1){ tierRowsTemp.splice(idx,1); provRenderSvcTierRows(); } }
+function provSaveServiceForm(){
+  const name=document.getElementById('p_svcFName').value.trim();
+  if(!name){ alert('اكتبي اسم الخدمة'); return; }
+  const desc=document.getElementById('p_svcFDesc').value.trim();
+  const type=document.getElementById('p_svcFType').value;
+  let svcObj={id: editingSvcId||('s'+Date.now()), name:name, desc:desc, pricingType:type};
+  if(type==='tier'){
+    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';}).map(function(r,i){return {id:'t'+i,label:r.label,price:+r.price};});
+    if(tiers.length===0){ alert('أضيفي فئة وحدة على الأقل بسعرها'); return; }
+    svcObj.tiers=tiers;
+  } else if(type==='perKg'){
+    svcObj.ratePerKg=+document.getElementById('p_svcFRate').value||0;
+    svcObj.minKg=+document.getElementById('p_svcFMinKg').value||1;
+  } else if(type==='perUnit'){
+    svcObj.unitLabel=document.getElementById('p_svcFUnitLabel').value.trim()||'وحدة';
+    svcObj.price=+document.getElementById('p_svcFUnitPrice').value||0;
+  } else { svcObj.price=+document.getElementById('p_svcFFixedPrice').value||0; }
+  const myCo=provMyCo();
+  if(editingSvcId){ const idx=myCo.services.findIndex(function(s){return s.id===editingSvcId;}); myCo.services[idx]=svcObj; }
+  else { myCo.services.push(svcObj); }
+  showScreen('p-catalog');
+}
+function provDeleteServiceForm(){
+  if(!confirm('متأكدة تبين تحذفين هذي الخدمة؟')) return;
+  const myCo=provMyCo();
+  myCo.services=myCo.services.filter(function(s){return s.id!==editingSvcId;});
+  showScreen('p-catalog');
+}
+
+/* =========================================================================
+   ================================  ADMIN  =================================
+   ========================================================================= */
+let admCoTab='pending';
+let admOrderTab='all';
+
+function admRenderHome(){
+  const activeCos=companies.filter(function(c){return c.status==='active';});
+  const pendingCos=companies.filter(function(c){return c.status==='pending';});
+  const disputedOrders=orders.filter(function(o){return o.status==='disputed';});
+  const totalRevenue=orders.filter(function(o){return o.status==='paid'||o.status==='completed';}).reduce(function(s,o){return s+o.total;},0);
+  const commission=Math.round(totalRevenue*0.10);
+  document.getElementById('a_statGrid').innerHTML=
+    '<div class="stat-box"><b>'+activeCos.length+'</b><span>شركات نشطة</span></div>'+
+    '<div class="stat-box '+(pendingCos.length>0?'alert':'')+'"><b>'+pendingCos.length+'</b><span>بانتظار المراجعة</span></div>'+
+    '<div class="stat-box"><b>'+orders.length+'</b><span>إجمالي الطلبات</span></div>'+
+    '<div class="stat-box"><b>'+commission+' د.ك</b><span>عمولة المنصة (١٠٪)</span></div>';
+  let html='';
+  if(pendingCos.length>0){
+    const c=pendingCos[0];
+    html+='<div class="urgent-card"><h2>🏢 شركة جديدة بانتظار المراجعة</h2>'+
+      '<p>'+c.name+' — '+c.tag+' — تقدمت للتسجيل '+timeAgo(c.joinedAt)+'</p>'+
+      '<div class="actions"><button class="btn green" onclick="admApproveCompany(\''+c.id+'\')">قبول الشركة</button><button class="btn danger" onclick="admRejectCompany(\''+c.id+'\')">رفض</button></div>'+
+      (pendingCos.length>1? '<p style="margin-top:8px;font-size:11.5px">وعندك '+(pendingCos.length-1)+' شركة ثانية بانتظار المراجعة</p>':'')+
+      '<button class="btn secondary" onclick="showScreen(\'a-companies\')">عرض الكل</button></div>';
+  }
+  if(disputedOrders.length>0){
+    const o=disputedOrders[0];
+    html+='<div class="urgent-card danger"><h2>⚠️ نزاع يحتاج حل</h2>'+
+      '<p>'+o.companyName+' — '+o.customer+' — '+o.total+' د.ك</p>'+
+      '<div class="issue-box">'+o.issue+'</div>'+
+      (disputedOrders.length>1? '<p style="margin-top:8px;font-size:11.5px">وعندك '+(disputedOrders.length-1)+' نزاع ثاني مفتوح</p>':'')+
+      '<button class="btn secondary" onclick="showScreen(\'a-orders\')">عرض كل النزاعات</button></div>';
+  }
+  document.getElementById('a_urgentArea').innerHTML=html;
+}
+function admRenderCompaniesScreen(){
+  const pendingCount=companies.filter(function(c){return c.status==='pending';}).length;
+  const activeCount=companies.filter(function(c){return c.status==='active';}).length;
+  const inactiveCount=companies.filter(function(c){return c.status==='suspended';}).length;
+  document.getElementById('a_coTabBar').innerHTML=
+    '<button class="'+(admCoTab==='pending'?'active':'')+'" onclick="admSwitchCoTab(\'pending\')">بانتظار المراجعة ('+pendingCount+')</button>'+
+    '<button class="'+(admCoTab==='active'?'active':'')+'" onclick="admSwitchCoTab(\'active\')">نشطة ('+activeCount+')</button>'+
+    '<button class="'+(admCoTab==='suspended'?'active':'')+'" onclick="admSwitchCoTab(\'suspended\')">موقوفة ('+inactiveCount+')</button>';
+  admRenderCompaniesList();
+}
+function admSwitchCoTab(tab){ admCoTab=tab; admRenderCompaniesScreen(); }
+function admRenderCompaniesList(){
+  const wrap=document.getElementById('a_companiesListArea');
+  const list=companies.filter(function(c){return c.status===admCoTab;});
+  if(list.length===0){ wrap.innerHTML='<div class="empty"><span class="em">🏢</span>ماكو شركات هنا حاليًا</div>'; return; }
+  wrap.innerHTML='';
+  list.forEach(function(c){ wrap.appendChild(admBuildCompanyCard(c)); });
+}
+function admBuildCompanyCard(c){
+  const st=coStatusMap[c.status];
+  const card=document.createElement('div');
+  card.className='entity-card';
+  let actions='';
+  if(c.status==='pending') actions='<div class="actions"><button class="btn green" onclick="admApproveCompany(\''+c.id+'\')">قبول</button><button class="btn danger" onclick="admRejectCompany(\''+c.id+'\')">رفض</button></div>';
+  else if(c.status==='active') actions='<div class="actions"><button class="btn danger" onclick="admSuspendCompany(\''+c.id+'\')">إيقاف الشركة</button></div>';
+  else if(c.status==='suspended') actions='<div class="actions"><button class="btn secondary" onclick="admReactivateCompany(\''+c.id+'\')">إعادة التفعيل</button></div>';
+  const coOrders=orders.filter(function(o){return o.companyId===c.id;});
+  const revenue=coOrders.filter(function(o){return o.status==='paid'||o.status==='completed';}).reduce(function(s,o){return s+o.total;},0);
+  let detailsHtml='<div class="li"><span>تاريخ التسجيل</span><span>'+dateStr(c.joinedAt)+'</span></div>'+
+    '<div class="li"><span>عدد البكجات</span><span>'+c.packages.length+'</span></div>'+
+    '<div class="li"><span>الخدمات الإضافية</span><span>'+c.services.length+'</span></div>'+
+    '<div class="li"><span>عدد الطلبات</span><span>'+coOrders.length+'</span></div>'+
+    '<div class="li"><span>إجمالي المبيعات</span><span>'+revenue+' د.ك</span></div>'+
+    (c.rating? '<div class="li"><span>التقييم</span><span>⭐ '+c.rating+'</span></div>':'');
+  if(c.reason) detailsHtml+='<div class="issue-box">سبب الإيقاف: '+c.reason+'</div>';
+  card.innerHTML='<div class="head"><div class="logo" style="width:42px;height:42px;font-size:19px">'+c.logo+'</div><div class="info"><b>'+c.name+'</b><div class="meta">'+c.tag+'</div></div><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
+    '<button class="toggle" onclick="toggleCard(this,\'a-co-'+c.id+'\')">عرض التفاصيل ▾</button>'+
+    '<div class="details" id="details-a-co-'+c.id+'">'+detailsHtml+'</div>'+actions;
+  return card;
+}
+function admApproveCompany(id){ const c=companies.find(function(x){return x.id===id;}); c.status='active'; c.rating=0; c.joinedAt=Date.now(); refreshCurrentScreen(); }
+function admRejectCompany(id){
+  const c=companies.find(function(x){return x.id===id;});
+  const reason=window.prompt('سبب الرفض - يوصل لصاحب الشركة:','البيانات المقدمة غير مكتملة، يرجى استكمالها وإعادة التقديم');
+  companies=companies.filter(function(x){return x.id!==id;});
+  refreshCurrentScreen();
+  alert('تم إشعار "'+c.name+'" برفض الطلب. السبب: '+(reason||'—'));
+}
+function admSuspendCompany(id){
+  const c=companies.find(function(x){return x.id===id;});
+  const reason=window.prompt('سبب إيقاف الشركة:','شكاوى متكررة من العملاء');
+  c.status='suspended'; c.reason=reason||'مخالفة شروط المنصة';
+  refreshCurrentScreen();
+}
+function admReactivateCompany(id){ const c=companies.find(function(x){return x.id===id;}); c.status='active'; delete c.reason; refreshCurrentScreen(); }
+function admRenderOrdersScreen(){
+  const allCount=orders.length;
+  const disputedCount=orders.filter(function(o){return o.status==='disputed';}).length;
+  const archiveCount=orders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired'||o.status==='resolved';}).length;
+  document.getElementById('a_orderTabBar').innerHTML=
+    '<button class="'+(admOrderTab==='all'?'active':'')+'" onclick="admSwitchOrderTab(\'all\')">الكل ('+allCount+')</button>'+
+    '<button class="'+(admOrderTab==='disputed'?'active':'')+'" onclick="admSwitchOrderTab(\'disputed\')">نزاعات ('+disputedCount+')</button>'+
+    '<button class="'+(admOrderTab==='archive'?'active':'')+'" onclick="admSwitchOrderTab(\'archive\')">الأرشيف ('+archiveCount+')</button>';
+  admRenderOrdersList();
+}
+function admSwitchOrderTab(tab){ admOrderTab=tab; admRenderOrdersScreen(); }
+function admRenderOrdersList(){
+  const wrap=document.getElementById('a_ordersListArea');
+  let list;
+  if(admOrderTab==='disputed') list=orders.filter(function(o){return o.status==='disputed';});
+  else if(admOrderTab==='archive') list=orders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired'||o.status==='resolved';});
+  else list=orders;
+  list=list.slice().sort(function(a,b){return b.createdAt-a.createdAt;});
+  if(list.length===0){ wrap.innerHTML='<div class="empty"><span class="em">🧾</span>ماكو طلبات هنا حاليًا</div>'; return; }
+  wrap.innerHTML='';
+  list.forEach(function(o){ wrap.appendChild(admBuildOrderCard(o)); });
+}
+function admBuildOrderCard(o){
+  const st=orderStatusMap[o.status];
+  const card=document.createElement('div');
+  card.className='entity-card';
+  let detailsHtml='<div class="li"><span>الشركة</span><span>'+o.companyName+'</span></div>'+
+    '<div class="li"><span>العميل</span><span>'+o.customer+'</span></div>'+
+    '<div class="li"><span>تاريخ الطلب</span><span>'+dateStr(o.createdAt)+'</span></div>';
+  if(o.reason) detailsHtml+='<div class="li"><span>السبب</span><span>'+o.reason+'</span></div>';
+  if(o.resolution) detailsHtml+='<div class="li"><span>قرار الحل</span><span>'+o.resolution+'</span></div>';
+  let actions='', issueHtml='';
+  if(o.status==='disputed'){
+    issueHtml='<div class="issue-box"><b>سبب النزاع ('+(o.raisedBy==='customer'?'من العميل':'من مقدم الخدمة')+'):</b><br>'+o.issue+'</div>';
+    actions='<div class="actions"><button class="btn green" onclick="admResolveDispute('+o.id+',\'customer\')">لصالح العميل</button><button class="btn secondary" onclick="admResolveDispute('+o.id+',\'provider\')">لصالح مقدم الخدمة</button></div>';
+  }
+  card.innerHTML='<div class="head"><div class="info"><b>'+o.companyName+'</b><div class="meta">'+o.customer+' — '+timeAgo(o.createdAt)+'</div></div><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
+    '<div class="meta" style="margin-top:4px">الإجمالي: <b style="color:var(--primary)">'+o.total+' د.ك</b></div>'+issueHtml+
+    '<button class="toggle" onclick="toggleCard(this,\'a-ord-'+o.id+'\')">عرض التفاصيل ▾</button>'+
+    '<div class="details" id="details-a-ord-'+o.id+'">'+detailsHtml+'</div>'+actions;
+  return card;
+}
+function admResolveDispute(id, side){
+  const o=orders.find(function(x){return x.id===id;});
+  const note=window.prompt('ملاحظة قرار الحل (تنعرض للطرفين):', side==='customer'? 'تقرر استرجاع كامل المبلغ للعميل' : 'تقرر أن الطلب نُفذ بشكل صحيح، ولا يستحق العميل استرجاع');
+  o.status='resolved'; o.resolvedSide=side; o.resolution=note||'—';
+  refreshCurrentScreen();
+}
+
+/* =========================================================================
+   جدول التوجيه: أي شاشة تُعاد رسمها تلقائيًا عند الدخول لها أو عند refreshCurrentScreen
+   ========================================================================= */
+const screenRenderers={
+  'c-home':custRenderHome, 'c-orders':custRenderOrders,
+  'p-home':provRenderHome, 'p-orders':provRenderOrdersScreen, 'p-catalog':provRenderCatalog,
+  'a-home':admRenderHome, 'a-companies':admRenderCompaniesScreen, 'a-orders':admRenderOrdersScreen,
+  'account':renderAccountScreen
+};
+
+/* =========================================================================
+   عداد حي واحد لكل التطبيق: يُنهي الطلبات المعلّقة تلقائيًا بعد ٥ دقايق،
+   ويحدّث شاشة انتظار العميل لحظيًا، ويحدّث أي شاشة نشطة كل ثانية.
+   ========================================================================= */
+setInterval(function(){
+  orders.forEach(function(o){
+    if(o.status==='pending' && Date.now()>=o.expiresAt){ o.status='expired'; o.reason='لم يتم الرد خلال ٥ دقايق'; }
+  });
+  if(currentUser && currentUser.role==='customer'){
+    const scr=document.getElementById('c-pending');
+    if(scr && scr.classList.contains('active') && window._custPendingOrderId){
+      const o=orders.find(function(x){return x.id===window._custPendingOrderId;});
+      if(o){
+        if(o.status==='pending'){ document.getElementById('c_countdownText').textContent=fmtRemain(o.expiresAt-Date.now()); }
+        else if(o.status==='accepted'){ custGoToPayment(o); }
+        else if(o.status==='rejected' || o.status==='expired'){
+          document.getElementById('declinedTitle').textContent = o.status==='rejected' ? 'تم رفض الطلب' : 'انتهى وقت الانتظار';
+          document.getElementById('declinedText').textContent = o.reason || '—';
+          showScreen('c-declined');
+        }
+      }
+    }
+  }
+  refreshCurrentScreen();
+},1000);
+</script>
+</body>
+</html>
