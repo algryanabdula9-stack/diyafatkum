@@ -145,40 +145,27 @@ textarea{min-height:70px;resize:none}
     <p>منصة كويتية لخدمات الضيافة والاستقبال</p>
   </div>
   <div class="card">
+    <label>الاسم الكامل (لإنشاء حساب جديد بس)</label>
+    <input id="loginName" placeholder="مثال: نورة العنزي">
     <label>البريد الإلكتروني</label>
-    <input id="loginEmail" placeholder="name@example.com">
+    <input id="loginEmail" type="email" placeholder="name@example.com">
     <label>كلمة المرور</label>
     <input id="loginPassword" type="password" placeholder="••••••••">
-    <p class="hint-note">هذا النموذج شكل مبدئي فقط. الدخول الفعلي بيتفعّل لاحقًا عبر Supabase Auth. حاليًا استخدمي أزرار الدخول التجريبي بالأسفل حسب الدور اللي تبين تجربينه.</p>
-  </div>
-  <div class="card">
-    <h2>دخول تجريبي حسب الدور</h2>
-    <div class="role-btn-row">
-      <button class="btn" onclick="login('customer')">دخول تجريبي كعميلة</button>
-      <button class="btn secondary" onclick="login('provider')">دخول تجريبي كمقدم خدمة (بيت الضيافة)</button>
-      <button class="btn secondary" onclick="login('admin')">دخول تجريبي كمدير المنصة</button>
-    </div>
+    <button class="btn" onclick="signIn()">تسجيل الدخول</button>
+    <button class="btn secondary" onclick="signUp()">إنشاء حساب جديد</button>
+    <p class="hint-note">أي حساب جديد يسجَّل تلقائيًا كـ "عميل". حسابات مقدمي الخدمة والمدراء تُفعَّل يدويًا من قاعدة البيانات حاليًا.</p>
   </div>
 </section>
 
 <!-- ===================== ACCOUNT (مشترك) ===================== -->
 <section id="account" class="screen">
   <div class="top">
-    <button class="back" onclick="showScreen(currentUser? (currentUser.role==='customer'?'c-home':currentUser.role==='provider'?'p-home':'a-home') : 'login')">رجوع</button>
+    <button class="back" onclick="routeToHome()">رجوع</button>
     <span class="badge">حسابي</span>
   </div>
   <div class="card hero" id="accountInfo"></div>
   <div class="card">
     <button class="btn danger" onclick="logout()">تسجيل الخروج</button>
-  </div>
-  <div class="card">
-    <h2>أدوات تجربة المطور</h2>
-    <p>بما إن هذا نموذج تجريبي بجلسة واحدة (بدون قاعدة بيانات حقيقية بعد)، تقدرين تبدلين الدور فورًا بنفس الجلسة عشان تجربين التدفق الكامل (مثال: أرسلي طلب كعميلة، ثم بدلي لمقدم الخدمة وردي عليه).</p>
-    <div class="role-btn-row">
-      <button class="btn secondary" onclick="login('customer')">تبديل لعرض العميل</button>
-      <button class="btn secondary" onclick="login('provider')">تبديل لعرض مقدم الخدمة</button>
-      <button class="btn secondary" onclick="login('admin')">تبديل لعرض المدير</button>
-    </div>
   </div>
 </section>
 
@@ -472,85 +459,85 @@ textarea{min-height:70px;resize:none}
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================================
-   نموذج بيانات موحّد يخدم الأدوار الثلاثة (عميل / مقدم خدمة / مدير) من نفس
-   المصفوفات، تمهيدًا لنقلها لجداول قاعدة بيانات حقيقية بمشروع Supabase.
+   الاتصال بـ Supabase
    ========================================================================= */
-const now = Date.now();
-const DAY = 86400000;
+const SUPABASE_URL = 'https://zqmsbiloomzpcjcyawfi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbXNiaWxvb216cGNqY3lhd2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MTc0OTMsImV4cCI6MjA5OTE5MzQ5M30.L16IbEPfjaIFR-IED75Lm7ueaLErQl-BggrhPmV7ujg';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ---- المستخدمون (لاحقًا: جدول profiles مرتبط بـ auth.users) ---- */
-let currentUser = null; // {id, name, role:'customer'|'provider'|'admin', companyId? }
+const FULL_COMPANY_SELECT =
+  'id,name,logo,tag,status,reason,rating,rating_count,created_at,owner_id,' +
+  'packages(id,name,emoji,pricing_type,price,rate_per_kg,min_kg,includes,package_tiers(id,label,price)),' +
+  'services(id,name,description,pricing_type,price,unit_label,rate_per_kg,min_kg,service_tiers(id,label,price))';
 
-/* ---- الشركات (لاحقًا: جدول companies + جدول packages + جدول package_tiers + جدول services + service_tiers) ---- */
-let companies = [
-  {id:'c1', name:'بيت الضيافة', logo:'☕', tag:'شاي وقهوة وتقديم', status:'active', joinedAt: now-200*DAY, rating:4.8,
-    packages:[
-      {id:'p1', name:'باقة ضيافة الزمردة', em:'☕', pricingType:'tier',
-        tiers:[{id:'t1',label:'٥٠ - ١٠٠ شخص',price:45},{id:'t2',label:'١٠١ - ١٥٠ شخص',price:65},{id:'t3',label:'١٥١ - ٢٠٠ شخص',price:85}],
-        includes:['شاي عربي وأجنبي','قهوة عربية','عاملتان للتقديم']},
-      {id:'p2', name:'باقة الضيافة الذهبية', em:'🫖', pricingType:'tier',
-        tiers:[{id:'t1',label:'٣٠ - ٦٠ شخص',price:75},{id:'t2',label:'٦١ - ١٠٠ شخص',price:105}],
-        includes:['شاي وقهوة وتمر','عاملة تقديم واحدة','فناجين فضية']},
-      {id:'p3', name:'باقة الاجتماعات', em:'🍵', pricingType:'tier',
-        tiers:[{id:'t1',label:'حتى ١٥ شخص',price:20},{id:'t2',label:'١٦ - ٣٠ شخص',price:30}],
-        includes:['قهوة عربية وسادة','ماء ومناديل']},
-    ],
-    services:[
-      {id:'s1', name:'طاولات عرض إضافية', desc:'طاولة مع تغطية قماش، السعر حسب العدد', pricingType:'tier',
-        tiers:[{id:'tt1',label:'١ - ٥ طاولات',price:8},{id:'tt2',label:'٦ - ١٠ طاولات',price:14}]},
-      {id:'s2', name:'حلى فاخر', desc:'تشكيلة حلويات مقدمة مع الشركاء - بالكيلو', pricingType:'perKg', ratePerKg:6, minKg:1},
-      {id:'s3', name:'عاملة تقديم إضافية', desc:'لمدة الحفل كامل', pricingType:'perUnit', unitLabel:'عاملة', price:20},
-      {id:'s6', name:'عصائر إضافية', desc:'حسب عدد الضيوف، التشكيلة يحددها مقدم الخدمة', pricingType:'tier',
-        tiers:[{id:'jt1',label:'حتى ٥٠ ضيف - نوعين عصير',price:12},{id:'jt2',label:'حتى ١٠٠ ضيف - عصائر مشكلة',price:22}]},
-    ]},
-  {id:'c2', name:'حلا الكويت', logo:'🍰', tag:'حلويات وكيك', status:'active', joinedAt: now-150*DAY, rating:4.6,
-    packages:[
-      {id:'p4', name:'صينية حلى مشكل', em:'🍮', pricingType:'perKg', ratePerKg:6, minKg:2, includes:['تشكيلة حلى مشكل','تغليف فاخر']},
-      {id:'p5', name:'باقة الكيك والحلى', em:'🍰', pricingType:'tier',
-        tiers:[{id:'t1',label:'حتى ٢٠ ضيف - كيكة صغيرة',price:35},{id:'t2',label:'حتى ٤٠ ضيف - كيكة وسط',price:55},{id:'t3',label:'حتى ٧٠ ضيف - كيكة كبيرة',price:80}],
-        includes:['كيكة حسب العدد','حلى إضافي']}
-    ], services:[]},
-  {id:'c3', name:'عبير العود', logo:'🌸', tag:'بخور واستقبال', status:'active', joinedAt: now-90*DAY, rating:4.9,
-    packages:[
-      {id:'p6', name:'باقة الاستقبال العطرية', em:'🌸', pricingType:'fixed', price:20, includes:['تبخير مدخل','عود ومسك للضيوف']},
-    ],
-    services:[
-      {id:'s4', name:'علبة عود إهداء للضيوف', desc:'قطعة واحدة لكل ضيف', pricingType:'perUnit', unitLabel:'ضيف', price:3},
-      {id:'s5', name:'زهور طاولة الاستقبال', desc:'تنسيق زهور طبيعية لطاولة واحدة', pricingType:'fixed', price:12},
-    ]},
-  {id:'c4', name:'ورد الشام', logo:'🌷', tag:'زهور وتنسيق حفلات', status:'pending', joinedAt: now-2*DAY,
-    packages:[{id:'p7', name:'باقة زهور الاستقبال', em:'🌷', pricingType:'fixed', price:15, includes:['تنسيق زهور بسيط لطاولة الاستقبال']}],
-    services:[]},
-  {id:'c5', name:'نكهات البيت', logo:'🍪', tag:'معجنات وحلويات منزلية', status:'suspended', joinedAt: now-60*DAY,
-    reason:'شكاوى متكررة من العملاء بخصوص تأخر التسليم',
-    packages:[{id:'p8', name:'صينية معجنات مشكلة', em:'🥐', pricingType:'perKg', ratePerKg:5, minKg:1, includes:['تشكيلة معجنات']}],
-    services:[]},
-];
+const ORDER_SELECT =
+  'id,company_id,customer_id,type,status,total,event_date,location,guests_expected,' +
+  'notes,expires_at,reason,issue,raised_by,resolution,resolved_side,created_at,' +
+  'order_items(name,qty,unit_price),companies(name),profiles(name)';
 
-/* ---- الطلبات (لاحقًا: جدول orders + جدول order_items) ---- */
-let orders = [
-  {id:1, companyId:'c1', companyName:'بيت الضيافة', customerId:'u1', customer:'نورة العنزي', type:'services', status:'pending',
-    items:[{name:'طاولات عرض إضافية — ٦ - ١٠ طاولات', qty:1, price:14},{name:'حلى فاخر — ٣ كيلو', qty:1, price:18}],
-    total:32, notes:'حاب التسليم الساعة ٦ مساء', createdAt: now-60000, expiresAt: now-60000+5*60*1000},
-  {id:2, companyId:'c1', companyName:'بيت الضيافة', customerId:null, customer:'بدر الرشيدي', type:'package', status:'paid',
-    items:[{name:'باقة ضيافة الزمردة — ١٠١ - ١٥٠ شخص', qty:1, price:65},{name:'عاملة تقديم إضافية — 2 عاملة', qty:2, price:20}],
-    total:105, date:'2026-07-15', location:'قاعة الأنوار - حولي', guests:'130', notes:'', createdAt: now-3600000},
-  {id:3, companyId:'c3', companyName:'عبير العود', customerId:null, customer:'هيا صالح', type:'services', status:'disputed',
-    items:[{name:'علبة عود إهداء للضيوف — 30 ضيف', qty:30, price:3}], total:23,
-    issue:'العميلة تقول الطلب توصلها بدون علبة عود الإهداء رغم إنها دفعت ثمنها', raisedBy:'customer', createdAt: now-2*DAY},
-  {id:4, companyId:'c1', companyName:'بيت الضيافة', customerId:'u1', customer:'نورة العنزي', type:'package', status:'completed',
-    items:[{name:'باقة الاجتماعات — ١٦ - ٣٠ شخص', qty:1, price:30}], total:30, date:'2026-06-20', location:'مكتب الإدارة', guests:'22', createdAt: now-7*DAY},
-  {id:5, companyId:'c5', companyName:'نكهات البيت', customerId:null, customer:'أم سلطان', type:'services', status:'disputed',
-    items:[{name:'صينية معجنات مشكلة — 4 كيلو', qty:1, price:20}], total:40,
-    issue:'مقدم الخدمة يقول العميلة ألغت الطلب بعد التحضير، وتطلب استرجاع كامل المبلغ', raisedBy:'provider', createdAt: now-DAY},
-  {id:6, companyId:'c2', companyName:'حلا الكويت', customerId:null, customer:'ريم فهد', type:'package', status:'rejected',
-    items:[{name:'باقة الكيك والحلى — حتى ٤٠ ضيف - كيكة وسط', qty:1, price:55}], total:35, reason:'الكمية غير متوفرة بهذا التاريخ', createdAt: now-4*DAY},
-  {id:7, companyId:'c1', companyName:'بيت الضيافة', customerId:null, customer:'شيخة المطيري', type:'services', status:'expired',
-    items:[{name:'حلى فاخر — ٢ كيلو', qty:1, price:12}], total:12, reason:'لم يتم الرد خلال ٥ دقايق', createdAt: now-6*DAY},
-];
-let orderSeq=8;
+function transformCompany(row){
+  return {
+    id: row.id, name: row.name, logo: row.logo, tag: row.tag, status: row.status,
+    reason: row.reason, rating: row.rating, ratingCount: row.rating_count,
+    joinedAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+    ownerId: row.owner_id,
+    packages: (row.packages||[]).map(function(p){
+      return {
+        id:p.id, name:p.name, em:p.emoji, pricingType:p.pricing_type,
+        price: p.price!==null ? Number(p.price) : null,
+        ratePerKg: p.rate_per_kg!==null ? Number(p.rate_per_kg) : null,
+        minKg: p.min_kg!==null ? Number(p.min_kg) : null,
+        includes: p.includes||[],
+        tiers: (p.package_tiers||[]).map(function(t){return {id:t.id,label:t.label,price:Number(t.price)};})
+      };
+    }),
+    services: (row.services||[]).map(function(s){
+      return {
+        id:s.id, name:s.name, desc:s.description, pricingType:s.pricing_type,
+        price: s.price!==null ? Number(s.price) : null,
+        unitLabel: s.unit_label,
+        ratePerKg: s.rate_per_kg!==null ? Number(s.rate_per_kg) : null,
+        minKg: s.min_kg!==null ? Number(s.min_kg) : null,
+        tiers: (s.service_tiers||[]).map(function(t){return {id:t.id,label:t.label,price:Number(t.price)};})
+      };
+    })
+  };
+}
+function transformOrder(row){
+  return {
+    id: row.id,
+    companyId: row.company_id,
+    companyName: row.companies ? row.companies.name : '',
+    customerId: row.customer_id,
+    customer: row.profiles ? row.profiles.name : '',
+    type: row.type,
+    status: row.status,
+    total: Number(row.total),
+    date: row.event_date,
+    location: row.location,
+    guests: row.guests_expected,
+    notes: row.notes,
+    createdAt: new Date(row.created_at).getTime(),
+    expiresAt: row.expires_at ? new Date(row.expires_at).getTime() : null,
+    reason: row.reason,
+    issue: row.issue,
+    raisedBy: row.raised_by,
+    resolution: row.resolution,
+    resolvedSide: row.resolved_side,
+    items: (row.order_items||[]).map(function(i){return {name:i.name, qty:i.qty, price:Number(i.unit_price)};})
+  };
+}
+
+/* =========================================================================
+   نموذج بيانات محلي (يُعبّى الآن من Supabase بدل بيانات ثابتة)
+   ========================================================================= */
+let currentUser = null; // {id, name, role, companyId? } — من profiles + auth
+let companies = [];
+let orders = [];
+let orderSeq = 1; // غير مستخدم بعد الربط (المعرفات الآن UUID من القاعدة)، تركته لتوافق أي كود قديم
 
 const orderStatusMap={
   pending:{label:'بانتظار رد مقدم الخدمة',cls:'yellow'},
@@ -601,19 +588,53 @@ function setDot(btn, show){
 }
 
 /* =========================================================================
-   تسجيل الدخول / الخروج / التوجيه حسب الدور
+   المصادقة (Supabase Auth) — تسجيل حساب/دخول/خروج حقيقي
    ========================================================================= */
-function login(role){
-  if(role==='customer') currentUser={id:'u1', name:'نورة العنزي', role:'customer'};
-  if(role==='provider') currentUser={id:'u2', name:'بيت الضيافة', role:'provider', companyId:'c1'};
-  if(role==='admin') currentUser={id:'u3', name:'مدير المنصة', role:'admin'};
-  showScreen(role==='customer'?'c-home':role==='provider'?'p-home':'a-home');
+async function signUp(){
+  const name=document.getElementById('loginName').value.trim();
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!name || !email || !password){ alert('عبي الاسم والبريد وكلمة المرور'); return; }
+  const { data, error } = await sb.auth.signUp({ email:email, password:password, options:{ data:{ name:name } } });
+  if(error){ alert(error.message); return; }
+  if(data.session){ await loginWithSession(data.session); }
+  else { alert('تم إنشاء الحساب! إذا كان تأكيد البريد مفعّل بمشروعك، تحققي من بريدك ثم سجلي الدخول.'); }
 }
-function logout(){
+async function signIn(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!email || !password){ alert('عبي البريد وكلمة المرور'); return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email:email, password:password });
+  if(error){ alert(error.message); return; }
+  await loginWithSession(data.session);
+}
+async function logout(){
+  if(pendingOrderChannel){ sb.removeChannel(pendingOrderChannel); pendingOrderChannel=null; }
+  await sb.auth.signOut();
   currentUser=null;
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.getElementById('login').classList.add('active');
   renderNav();
+}
+async function loginWithSession(session){
+  const { data: profile, error } = await sb.from('profiles').select('id,name,role').eq('id', session.user.id).single();
+  if(error || !profile){ alert('تعذر تحميل بيانات الحساب'); await sb.auth.signOut(); return; }
+  currentUser = { id: profile.id, name: profile.name, role: profile.role };
+  if(profile.role === 'provider'){
+    const { data: co } = await sb.from('companies').select('id').eq('owner_id', profile.id).maybeSingle();
+    if(co) currentUser.companyId = co.id;
+  }
+  routeToHome();
+}
+function routeToHome(){
+  if(!currentUser){ showScreen('login'); return; }
+  if(currentUser.role==='customer') showScreen('c-home');
+  else if(currentUser.role==='provider') showScreen('p-home');
+  else showScreen('a-home');
+}
+async function checkExistingSession(){
+  const { data } = await sb.auth.getSession();
+  if(data && data.session){ await loginWithSession(data.session); }
 }
 function renderAccountScreen(){
   if(!currentUser) return;
@@ -622,7 +643,7 @@ function renderAccountScreen(){
 }
 
 /* =========================================================================
-   التوجيه بين الشاشات + شريط التنقل الديناميكي حسب الدور
+   التوجيه بين الشاشات + شريط التنقل
    ========================================================================= */
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
@@ -634,10 +655,10 @@ function showScreen(id){
   renderNav();
   window.scrollTo(0,0);
 }
-function refreshCurrentScreen(){
+async function refreshCurrentScreen(){
   const active=document.querySelector('.screen.active');
   if(!active) return;
-  if(screenRenderers[active.id]) screenRenderers[active.id]();
+  if(screenRenderers[active.id]) await screenRenderers[active.id]();
   renderNav();
 }
 function renderNav(){
@@ -676,6 +697,7 @@ let pkgState={tierId:null, kg:0};
 let selectedAddons={};
 let servicesCart={};
 let cfgKgTemp={}, tierAddonTemp={}, openConfigKey=null;
+let pendingOrderChannel=null;
 
 function custPkgCardPriceLabel(pkg){
   if(pkg.pricingType==='tier'){ const min=Math.min.apply(null, pkg.tiers.map(function(t){return t.price;})); return 'يبدأ من '+min+' د.ك'; }
@@ -687,17 +709,21 @@ function custPkgCardHint(pkg){
   if(pkg.pricingType==='perKg') return 'السعر بالكيلو';
   return 'سعر ثابت';
 }
-function custRenderHome(){
+async function custRenderHome(){
   const list=document.getElementById('c_companyList');
+  list.innerHTML='<div class="empty">جاري تحميل الشركات...</div>';
+  const { data, error } = await sb.from('companies').select(FULL_COMPANY_SELECT).eq('status','active');
+  if(error){ list.innerHTML='<div class="empty">تعذر تحميل الشركات: '+error.message+'</div>'; return; }
+  companies = data.map(transformCompany);
   list.innerHTML='';
-  const activeCos=companies.filter(function(c){return c.status==='active';});
-  activeCos.forEach(function(co){
+  companies.forEach(function(co){
     const row=document.createElement('div');
     row.className='co-row';
     row.onclick=function(){ custOpenCompany(co.id); };
     row.innerHTML='<div class="logo">'+co.logo+'</div><div class="info"><b>'+co.name+'</b><span>'+co.tag+'</span></div><div class="arrow">‹</div>';
     list.appendChild(row);
   });
+  if(companies.length===0) list.innerHTML='<div class="empty"><span class="em">🏢</span>ما فيه شركات متاحة حاليًا</div>';
 }
 function custOpenCompany(id){
   currentCoId=id;
@@ -912,25 +938,51 @@ function custOrderItemRowHTML(i){
   const qtyLine = i.qty>1 ? '<span>الكمية: '+i.qty+'</span>' : '';
   return '<div class="svc-row"><div class="info"><b>'+i.name+'</b>'+qtyLine+'</div><div class="price">'+(i.qty*i.price)+' د.ك</div></div>';
 }
-function custSendServicesRequest(total){
+function subscribeToOrderUpdates(orderId){
+  if(pendingOrderChannel){ sb.removeChannel(pendingOrderChannel); pendingOrderChannel=null; }
+  pendingOrderChannel = sb.channel('order-'+orderId)
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'orders', filter:'id=eq.'+orderId }, async function(payload){
+      const status = payload.new.status;
+      if(status==='accepted'){
+        const { data: row } = await sb.from('orders').select(ORDER_SELECT).eq('id', orderId).single();
+        custGoToPayment(transformOrder(row));
+      } else if(status==='rejected' || status==='expired'){
+        document.getElementById('declinedTitle').textContent = status==='rejected' ? 'تم رفض الطلب' : 'انتهى وقت الانتظار';
+        document.getElementById('declinedText').textContent = payload.new.reason || '—';
+        showScreen('c-declined');
+      }
+    })
+    .subscribe();
+}
+async function custSendServicesRequest(total){
   const co=companies.find(function(c){return c.id===currentCoId;});
   const notes=document.getElementById('c_svcNotes').value;
   const cart=servicesCart[currentCoId]||{};
   const items=Object.keys(cart).map(function(sid){
     const svc=co.services.find(function(s){return s.id===sid;});
     const st=cart[sid];
-    return {name:svc.name+' — '+st.label, qty:1, price:st.lineTotal};
+    return {name:svc.name+' — '+st.label, qty:1, unit_price:st.lineTotal};
   });
-  const order={id:orderSeq++, companyId:co.id, companyName:co.name, customerId:currentUser.id, customer:currentUser.name,
-    type:'services', items:items, total:total, notes:notes, status:'pending', createdAt:Date.now(), expiresAt:Date.now()+5*60*1000};
-  orders.unshift(order);
-  servicesCart[currentCoId]={};
   document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
+
+  const { data: orderId, error } = await sb.rpc('request_services_order', {
+    p_company_id: co.id, p_items: items, p_notes: notes || null
+  });
+  if(error){ alert(error.message); return; }
+  servicesCart[currentCoId]={};
+
+  const { data: row, error: fetchErr } = await sb.from('orders').select(ORDER_SELECT).eq('id', orderId).single();
+  if(fetchErr){ alert(fetchErr.message); return; }
+  const order = transformOrder(row);
+
   window._custPendingOrderId=order.id;
+  window._custPendingExpiresAt=order.expiresAt;
   document.getElementById('c_pendingCoName').textContent=co.name;
-  document.getElementById('c_countdownText').textContent='05:00';
-  document.getElementById('c_pendingSummary').innerHTML=items.map(custOrderItemRowHTML).join('')+
-    '<div class="divider"></div><div style="display:flex;justify-content:space-between;font-weight:900;color:var(--primary)"><span>الإجمالي</span><span>'+total+' د.ك</span></div>';
+  document.getElementById('c_countdownText').textContent=fmtRemain(order.expiresAt-Date.now());
+  document.getElementById('c_pendingSummary').innerHTML=order.items.map(custOrderItemRowHTML).join('')+
+    '<div class="divider"></div><div style="display:flex;justify-content:space-between;font-weight:900;color:var(--primary)"><span>الإجمالي</span><span>'+order.total+' د.ك</span></div>';
+
+  subscribeToOrderUpdates(order.id);
   showScreen('c-pending');
 }
 function custPkgBasePrice(pkg){
@@ -1002,24 +1054,31 @@ function custRenderTotalBar(){
   bar.innerHTML='<div class="sum"><span>السعر النهائي</span><b>'+total+' د.ك</b></div><button class="btn" onclick="custConfirmPackageOrder('+total+')">تأكيد الطلب</button>';
   document.getElementById('c-pkgDetail').appendChild(bar);
 }
-function custConfirmPackageOrder(total){
+async function custConfirmPackageOrder(total){
   const co=companies.find(function(c){return c.id===currentCoId;});
   const pkg=co.packages.find(function(p){return p.id===currentPkgId;});
   const guests=document.getElementById('c_pkgGuests').value;
   const date=document.getElementById('c_pkgDate').value;
   const location=document.getElementById('c_pkgLocation').value;
   const notes=document.getElementById('c_pkgNotes').value;
-  const items=[{name:custPkgBaseLabel(pkg), qty:1, price:custPkgBasePrice(pkg)}];
+  const items=[{name:custPkgBaseLabel(pkg), qty:1, unit_price:custPkgBasePrice(pkg)}];
   Object.keys(selectedAddons).forEach(function(sid){
     const svc=co.services.find(function(s){return s.id===sid;});
     const st=selectedAddons[sid];
-    items.push({name:svc.name+' — '+st.label, qty:1, price:st.lineTotal});
+    items.push({name:svc.name+' — '+st.label, qty:1, unit_price:st.lineTotal});
   });
-  const order={id:orderSeq++, companyId:co.id, companyName:co.name, customerId:currentUser.id, customer:currentUser.name,
-    type:'package', items:items, total:total, guests:guests, date:date, location:location, notes:notes, status:'confirmed', createdAt:Date.now()};
-  orders.unshift(order);
   document.querySelectorAll('.total-bar').forEach(function(e){e.remove();});
-  custGoToPayment(order);
+
+  const { data: newOrderId, error } = await sb.rpc('request_package_order', {
+    p_company_id: co.id, p_items: items,
+    p_event_date: date || null, p_location: location || null,
+    p_guests_expected: guests ? +guests : null, p_notes: notes || null
+  });
+  if(error){ alert(error.message); return; }
+
+  const { data: row, error: fetchErr } = await sb.from('orders').select(ORDER_SELECT).eq('id', newOrderId).single();
+  if(fetchErr){ alert(fetchErr.message); return; }
+  custGoToPayment(transformOrder(row));
 }
 function custGoToPayment(order){
   document.getElementById('c_paymentCoName').textContent=order.companyName;
@@ -1030,15 +1089,19 @@ function custGoToPayment(order){
   window._custPayingOrder=order;
   showScreen('c-payment');
 }
-function custCompletePayment(){
+async function custCompletePayment(){
   const order=window._custPayingOrder;
-  order.status='paid';
+  const { error } = await sb.rpc('record_payment', { p_order_id: order.id, p_method: 'knet' });
+  if(error){ alert(error.message); return; }
   document.getElementById('c_successText').textContent='طلبك من '+order.companyName+' تأكد بنجاح، وتم الدفع بمبلغ '+order.total+' د.ك.';
   showScreen('c-success');
 }
-function custRenderOrders(){
+async function custRenderOrders(){
   const list=document.getElementById('c_ordersList');
-  const myOrders=orders.filter(function(o){return o.customerId===currentUser.id;});
+  list.innerHTML='<div class="empty">جاري التحميل...</div>';
+  const { data, error } = await sb.from('orders').select(ORDER_SELECT).eq('customer_id', currentUser.id).order('created_at',{ascending:false});
+  if(error){ list.innerHTML='<div class="empty">تعذر تحميل الطلبات: '+error.message+'</div>'; return; }
+  const myOrders = data.map(transformOrder);
   if(myOrders.length===0){ list.innerHTML='<div class="empty"><span class="em">🧾</span>ما عندك طلبات بعد</div>'; return; }
   list.innerHTML='';
   myOrders.forEach(function(o){
@@ -1063,13 +1126,21 @@ let tierRowsTemp=[];
 
 function provMyCo(){ return companies.find(function(c){return c.id===currentUser.companyId;}); }
 
-function provRenderHome(){
+async function provLoadData(){
+  const { data: coRow, error: coErr } = await sb.from('companies').select(FULL_COMPANY_SELECT).eq('id', currentUser.companyId).single();
+  if(coErr){ alert(coErr.message); return; }
+  companies = [transformCompany(coRow)];
+  const { data: ordRows, error: ordErr } = await sb.from('orders').select(ORDER_SELECT).eq('company_id', currentUser.companyId).order('created_at',{ascending:false});
+  if(ordErr){ alert(ordErr.message); return; }
+  orders = ordRows.map(transformOrder);
+}
+async function provRenderHome(){
+  await provLoadData();
   const myCo=provMyCo();
   document.getElementById('p_homeLogo').textContent=myCo.logo;
   document.getElementById('p_homeCoName').textContent=myCo.name;
-  const myOrders=orders.filter(function(o){return o.companyId===myCo.id;});
-  const pending=myOrders.filter(function(o){return o.status==='pending';});
-  const upcoming=myOrders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';});
+  const pending=orders.filter(function(o){return o.status==='pending';});
+  const upcoming=orders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';});
   document.getElementById('p_statGrid').innerHTML=
     '<div class="stat-box"><b>'+pending.length+'</b><span>بانتظار ردك</span></div>'+
     '<div class="stat-box"><b>'+upcoming.length+'</b><span>حجوزات قادمة</span></div>'+
@@ -1077,36 +1148,44 @@ function provRenderHome(){
   const urgentArea=document.getElementById('p_urgentArea');
   if(pending.length>0){
     const o=pending[0];
-    const remaining=o.expiresAt-Date.now();
     urgentArea.innerHTML='<div class="urgent-card"><h2>⏰ عندك طلب يحتاج ردك الآن</h2>'+
-      '<p>'+o.customer+' — '+o.total+' د.ك — الوقت المتبقي: <span class="countdown-mini">'+fmtRemain(remaining)+'</span></p>'+
+      '<p>'+o.customer+' — '+o.total+' د.ك — الوقت المتبقي: <span class="countdown-mini" data-order-id="'+o.id+'">'+fmtRemain(o.expiresAt-Date.now())+'</span></p>'+
       '<div class="entity-card" style="margin-top:8px;box-shadow:none">'+provRenderOrderDetailsHTML(o)+'</div>'+
-      '<div class="actions"><button class="btn green" onclick="provAcceptOrder('+o.id+')">قبول</button><button class="btn danger" onclick="provRejectOrder('+o.id+')">رفض</button></div>'+
+      '<div class="actions"><button class="btn green" onclick="provAcceptOrder(\''+o.id+'\')">قبول</button><button class="btn danger" onclick="provRejectOrder(\''+o.id+'\')">رفض</button></div>'+
       (pending.length>1? '<p style="margin-top:8px;font-size:11.5px">وعندك '+(pending.length-1)+' طلب ثاني بانتظار ردك</p>':'')+
       '<button class="btn secondary" onclick="showScreen(\'p-orders\')">عرض كل الطلبات</button></div>';
   } else { urgentArea.innerHTML=''; }
 }
-function provRenderOrdersScreen(){
-  const myCo=provMyCo();
-  const myOrders=orders.filter(function(o){return o.companyId===myCo.id;});
-  const pendingCount=myOrders.filter(function(o){return o.status==='pending';}).length;
-  const upcomingCount=myOrders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';}).length;
-  const historyCount=myOrders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';}).length;
+async function provRenderOrdersScreen(){
+  await provLoadData();
+  const pendingCount=orders.filter(function(o){return o.status==='pending';}).length;
+  const upcomingCount=orders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';}).length;
+  const historyCount=orders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';}).length;
   document.getElementById('p_orderTabBar').innerHTML=
     '<button class="'+(provOrderTab==='pending'?'active':'')+'" onclick="provSwitchOrderTab(\'pending\')">بانتظار الرد ('+pendingCount+')</button>'+
     '<button class="'+(provOrderTab==='upcoming'?'active':'')+'" onclick="provSwitchOrderTab(\'upcoming\')">الحجوزات القادمة ('+upcomingCount+')</button>'+
     '<button class="'+(provOrderTab==='history'?'active':'')+'" onclick="provSwitchOrderTab(\'history\')">السجل ('+historyCount+')</button>';
   provRenderOrdersList();
 }
-function provSwitchOrderTab(tab){ provOrderTab=tab; provRenderOrdersScreen(); }
+function provSwitchOrderTab(tab){ provOrderTab=tab; provRenderOrdersListOnly(); }
+async function provRenderOrdersListOnly(){
+  // نفس التبويبات لكن بدون إعادة الجلب من القاعدة (البيانات محمّلة أصلًا)
+  const pendingCount=orders.filter(function(o){return o.status==='pending';}).length;
+  const upcomingCount=orders.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';}).length;
+  const historyCount=orders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';}).length;
+  document.getElementById('p_orderTabBar').innerHTML=
+    '<button class="'+(provOrderTab==='pending'?'active':'')+'" onclick="provSwitchOrderTab(\'pending\')">بانتظار الرد ('+pendingCount+')</button>'+
+    '<button class="'+(provOrderTab==='upcoming'?'active':'')+'" onclick="provSwitchOrderTab(\'upcoming\')">الحجوزات القادمة ('+upcomingCount+')</button>'+
+    '<button class="'+(provOrderTab==='history'?'active':'')+'" onclick="provSwitchOrderTab(\'history\')">السجل ('+historyCount+')</button>';
+  provRenderOrdersList();
+}
 function provRenderOrdersList(){
-  const myCo=provMyCo();
   const wrap=document.getElementById('p_ordersListArea');
-  let list=orders.filter(function(o){return o.companyId===myCo.id;});
+  let list=orders.slice();
   if(provOrderTab==='pending') list=list.filter(function(o){return o.status==='pending';});
   else if(provOrderTab==='upcoming') list=list.filter(function(o){return o.status==='paid'||o.status==='accepted'||o.status==='confirmed';});
   else list=list.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired';});
-  list=list.slice().sort(function(a,b){return b.createdAt-a.createdAt;});
+  list=list.sort(function(a,b){return b.createdAt-a.createdAt;});
   if(list.length===0){ wrap.innerHTML='<div class="empty"><span class="em">🧾</span>ماكو طلبات هنا حاليًا</div>'; return; }
   wrap.innerHTML='';
   list.forEach(function(o){ wrap.appendChild(provBuildOrderCard(o)); });
@@ -1127,26 +1206,33 @@ function provBuildOrderCard(o){
   const card=document.createElement('div');
   card.className='entity-card';
   let countdownLine='';
-  if(o.status==='pending') countdownLine='<div class="meta">الوقت المتبقي للرد: <span class="countdown-mini">'+fmtRemain(o.expiresAt-Date.now())+'</span></div>';
+  if(o.status==='pending') countdownLine='<div class="meta">الوقت المتبقي للرد: <span class="countdown-mini" data-order-id="'+o.id+'">'+fmtRemain(o.expiresAt-Date.now())+'</span></div>';
   let actions='';
-  if(o.status==='pending') actions='<div class="actions"><button class="btn green" onclick="provAcceptOrder('+o.id+')">قبول</button><button class="btn danger" onclick="provRejectOrder('+o.id+')">رفض</button></div>';
-  else if(o.status==='accepted'||o.status==='confirmed') actions='<div class="actions"><button class="btn secondary" onclick="provSimulateCustomerPay('+o.id+')">محاكاة: دفع العميل</button></div>';
-  else if(o.status==='paid') actions='<div class="actions"><button class="btn secondary" onclick="provMarkCompleted('+o.id+')">تم التنفيذ</button></div>';
+  if(o.status==='pending') actions='<div class="actions"><button class="btn green" onclick="provAcceptOrder(\''+o.id+'\')">قبول</button><button class="btn danger" onclick="provRejectOrder(\''+o.id+'\')">رفض</button></div>';
+  else if(o.status==='accepted'||o.status==='confirmed') actions='<p class="hint-note">بانتظار دفع العميل — بيتحدث تلقائيًا لما يدفع.</p>';
+  else if(o.status==='paid') actions='<div class="actions"><button class="btn secondary" onclick="provMarkCompleted(\''+o.id+'\')">تم التنفيذ</button></div>';
   card.innerHTML='<div class="head"><div class="info"><b>'+o.customer+'</b><div class="meta">'+(o.type==='package'?'طلب بكج':'طلب خدمات متفرقة')+' — '+timeAgo(o.createdAt)+'</div></div><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
     countdownLine+'<div class="meta" style="margin-top:4px">الإجمالي: <b style="color:var(--primary)">'+o.total+' د.ك</b></div>'+
     '<button class="toggle" onclick="toggleCard(this,\'p-ord-'+o.id+'\')">عرض التفاصيل ▾</button>'+
     '<div class="details" id="details-p-ord-'+o.id+'">'+provRenderOrderDetailsHTML(o)+'</div>'+actions;
   return card;
 }
-function provAcceptOrder(id){ orders.find(function(x){return x.id===id;}).status='accepted'; refreshCurrentScreen(); }
-function provRejectOrder(id){
-  const o=orders.find(function(x){return x.id===id;});
-  const reason=window.prompt('سبب الرفض (اختياري) - يوصل للعميل:','ما نقدر نوفر هذا الطلب هالمرة');
-  o.status='rejected'; o.reason=reason||'اعتذر مقدم الخدمة عن توفير الطلب';
-  refreshCurrentScreen();
+async function provAcceptOrder(id){
+  const { error } = await sb.rpc('accept_order', { p_order_id: id });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
 }
-function provSimulateCustomerPay(id){ orders.find(function(x){return x.id===id;}).status='paid'; refreshCurrentScreen(); }
-function provMarkCompleted(id){ orders.find(function(x){return x.id===id;}).status='completed'; refreshCurrentScreen(); }
+async function provRejectOrder(id){
+  const reason=window.prompt('سبب الرفض (اختياري) - يوصل للعميل:','ما نقدر نوفر هذا الطلب هالمرة');
+  const { error } = await sb.rpc('reject_order', { p_order_id: id, p_reason: reason });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
+}
+async function provMarkCompleted(id){
+  const { error } = await sb.rpc('mark_completed', { p_order_id: id });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
+}
 
 function provPkgPriceSummary(pkg){
   if(pkg.pricingType==='tier') return pkg.tiers.length+' فئات — يبدأ من '+Math.min.apply(null,pkg.tiers.map(function(t){return t.price;}))+' د.ك';
@@ -1159,7 +1245,8 @@ function provSvcPriceSummary(svc){
   if(svc.pricingType==='perUnit') return svc.price+' د.ك / '+svc.unitLabel;
   return svc.price+' د.ك (ثابت)';
 }
-function provRenderCatalog(){
+async function provRenderCatalog(){
+  await provLoadData();
   const myCo=provMyCo();
   const pkgWrap=document.getElementById('p_pkgManageList');
   pkgWrap.innerHTML='';
@@ -1222,31 +1309,48 @@ function provRenderPkgTierRows(){
 }
 function provAddPkgTierRow(){ tierRowsTemp.push({label:'',price:''}); provRenderPkgTierRows(); }
 function provRemovePkgTierRow(idx){ if(tierRowsTemp.length>1){ tierRowsTemp.splice(idx,1); provRenderPkgTierRows(); } }
-function provSavePackageForm(){
+async function provSavePackageForm(){
   const name=document.getElementById('p_pkgFName').value.trim();
   if(!name){ alert('اكتبي اسم البكج'); return; }
-  const em=document.getElementById('p_pkgFEmoji').value.trim()||'✨';
+  const emoji=document.getElementById('p_pkgFEmoji').value.trim()||'✨';
   const includesRaw=document.getElementById('p_pkgFIncludes').value.trim();
   const includes=includesRaw? includesRaw.split('\n').map(function(s){return s.trim();}).filter(Boolean) : [];
   const type=document.getElementById('p_pkgFType').value;
-  let pkgObj={id: editingPkgId||('p'+Date.now()), name:name, em:em, includes:includes, pricingType:type};
+  let payload={ name:name, emoji:emoji, pricing_type:type, includes:includes, price:null, rate_per_kg:null, min_kg:null };
+  let tiersToInsert=null;
   if(type==='tier'){
-    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';}).map(function(r,i){return {id:'t'+i,label:r.label,price:+r.price};});
+    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';});
     if(tiers.length===0){ alert('أضيفي فئة وحدة على الأقل بسعرها'); return; }
-    pkgObj.tiers=tiers;
+    tiersToInsert=tiers;
   } else if(type==='perKg'){
-    pkgObj.ratePerKg=+document.getElementById('p_pkgFRate').value||0;
-    pkgObj.minKg=+document.getElementById('p_pkgFMinKg').value||1;
-  } else { pkgObj.price=+document.getElementById('p_pkgFFixedPrice').value||0; }
-  const myCo=provMyCo();
-  if(editingPkgId){ const idx=myCo.packages.findIndex(function(p){return p.id===editingPkgId;}); myCo.packages[idx]=pkgObj; }
-  else { myCo.packages.push(pkgObj); }
+    payload.rate_per_kg=+document.getElementById('p_pkgFRate').value||0;
+    payload.min_kg=+document.getElementById('p_pkgFMinKg').value||1;
+  } else {
+    payload.price=+document.getElementById('p_pkgFFixedPrice').value||0;
+  }
+
+  let pkgId=editingPkgId;
+  if(pkgId){
+    const { error } = await sb.from('packages').update(payload).eq('id', pkgId);
+    if(error){ alert(error.message); return; }
+    await sb.from('package_tiers').delete().eq('package_id', pkgId);
+  } else {
+    payload.company_id = currentUser.companyId;
+    const { data, error } = await sb.from('packages').insert(payload).select('id').single();
+    if(error){ alert(error.message); return; }
+    pkgId = data.id;
+  }
+  if(tiersToInsert){
+    const rows = tiersToInsert.map(function(t,i){ return { package_id: pkgId, label: t.label, price:+t.price, sort_order:i }; });
+    const { error } = await sb.from('package_tiers').insert(rows);
+    if(error){ alert(error.message); return; }
+  }
   showScreen('p-catalog');
 }
-function provDeletePackageForm(){
+async function provDeletePackageForm(){
   if(!confirm('متأكدة تبين تحذفين هذا البكج؟')) return;
-  const myCo=provMyCo();
-  myCo.packages=myCo.packages.filter(function(p){return p.id!==editingPkgId;});
+  const { error } = await sb.from('packages').delete().eq('id', editingPkgId);
+  if(error){ alert(error.message); return; }
   showScreen('p-catalog');
 }
 function provOpenSvcForm(svcId){
@@ -1291,32 +1395,49 @@ function provRenderSvcTierRows(){
 }
 function provAddSvcTierRow(){ tierRowsTemp.push({label:'',price:''}); provRenderSvcTierRows(); }
 function provRemoveSvcTierRow(idx){ if(tierRowsTemp.length>1){ tierRowsTemp.splice(idx,1); provRenderSvcTierRows(); } }
-function provSaveServiceForm(){
+async function provSaveServiceForm(){
   const name=document.getElementById('p_svcFName').value.trim();
   if(!name){ alert('اكتبي اسم الخدمة'); return; }
   const desc=document.getElementById('p_svcFDesc').value.trim();
   const type=document.getElementById('p_svcFType').value;
-  let svcObj={id: editingSvcId||('s'+Date.now()), name:name, desc:desc, pricingType:type};
+  let payload={ name:name, description:desc, pricing_type:type, price:null, unit_label:null, rate_per_kg:null, min_kg:null };
+  let tiersToInsert=null;
   if(type==='tier'){
-    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';}).map(function(r,i){return {id:'t'+i,label:r.label,price:+r.price};});
+    const tiers=tierRowsTemp.filter(function(r){return r.label && r.price!=='';});
     if(tiers.length===0){ alert('أضيفي فئة وحدة على الأقل بسعرها'); return; }
-    svcObj.tiers=tiers;
+    tiersToInsert=tiers;
   } else if(type==='perKg'){
-    svcObj.ratePerKg=+document.getElementById('p_svcFRate').value||0;
-    svcObj.minKg=+document.getElementById('p_svcFMinKg').value||1;
+    payload.rate_per_kg=+document.getElementById('p_svcFRate').value||0;
+    payload.min_kg=+document.getElementById('p_svcFMinKg').value||1;
   } else if(type==='perUnit'){
-    svcObj.unitLabel=document.getElementById('p_svcFUnitLabel').value.trim()||'وحدة';
-    svcObj.price=+document.getElementById('p_svcFUnitPrice').value||0;
-  } else { svcObj.price=+document.getElementById('p_svcFFixedPrice').value||0; }
-  const myCo=provMyCo();
-  if(editingSvcId){ const idx=myCo.services.findIndex(function(s){return s.id===editingSvcId;}); myCo.services[idx]=svcObj; }
-  else { myCo.services.push(svcObj); }
+    payload.unit_label=document.getElementById('p_svcFUnitLabel').value.trim()||'وحدة';
+    payload.price=+document.getElementById('p_svcFUnitPrice').value||0;
+  } else {
+    payload.price=+document.getElementById('p_svcFFixedPrice').value||0;
+  }
+
+  let svcId=editingSvcId;
+  if(svcId){
+    const { error } = await sb.from('services').update(payload).eq('id', svcId);
+    if(error){ alert(error.message); return; }
+    await sb.from('service_tiers').delete().eq('service_id', svcId);
+  } else {
+    payload.company_id = currentUser.companyId;
+    const { data, error } = await sb.from('services').insert(payload).select('id').single();
+    if(error){ alert(error.message); return; }
+    svcId = data.id;
+  }
+  if(tiersToInsert){
+    const rows = tiersToInsert.map(function(t,i){ return { service_id: svcId, label: t.label, price:+t.price, sort_order:i }; });
+    const { error } = await sb.from('service_tiers').insert(rows);
+    if(error){ alert(error.message); return; }
+  }
   showScreen('p-catalog');
 }
-function provDeleteServiceForm(){
+async function provDeleteServiceForm(){
   if(!confirm('متأكدة تبين تحذفين هذي الخدمة؟')) return;
-  const myCo=provMyCo();
-  myCo.services=myCo.services.filter(function(s){return s.id!==editingSvcId;});
+  const { error } = await sb.from('services').delete().eq('id', editingSvcId);
+  if(error){ alert(error.message); return; }
   showScreen('p-catalog');
 }
 
@@ -1326,7 +1447,16 @@ function provDeleteServiceForm(){
 let admCoTab='pending';
 let admOrderTab='all';
 
-function admRenderHome(){
+async function admLoadData(){
+  const { data: coRows, error: coErr } = await sb.from('companies').select(FULL_COMPANY_SELECT);
+  if(coErr){ alert(coErr.message); return; }
+  companies = coRows.map(transformCompany);
+  const { data: ordRows, error: ordErr } = await sb.from('orders').select(ORDER_SELECT).order('created_at',{ascending:false});
+  if(ordErr){ alert(ordErr.message); return; }
+  orders = ordRows.map(transformOrder);
+}
+async function admRenderHome(){
+  await admLoadData();
   const activeCos=companies.filter(function(c){return c.status==='active';});
   const pendingCos=companies.filter(function(c){return c.status==='pending';});
   const disputedOrders=orders.filter(function(o){return o.status==='disputed';});
@@ -1356,7 +1486,8 @@ function admRenderHome(){
   }
   document.getElementById('a_urgentArea').innerHTML=html;
 }
-function admRenderCompaniesScreen(){
+async function admRenderCompaniesScreen(){
+  await admLoadData();
   const pendingCount=companies.filter(function(c){return c.status==='pending';}).length;
   const activeCount=companies.filter(function(c){return c.status==='active';}).length;
   const inactiveCount=companies.filter(function(c){return c.status==='suspended';}).length;
@@ -1366,7 +1497,16 @@ function admRenderCompaniesScreen(){
     '<button class="'+(admCoTab==='suspended'?'active':'')+'" onclick="admSwitchCoTab(\'suspended\')">موقوفة ('+inactiveCount+')</button>';
   admRenderCompaniesList();
 }
-function admSwitchCoTab(tab){ admCoTab=tab; admRenderCompaniesScreen(); }
+function admSwitchCoTab(tab){ admCoTab=tab; admRenderCompaniesList(); admUpdateCoTabBar(); }
+function admUpdateCoTabBar(){
+  const pendingCount=companies.filter(function(c){return c.status==='pending';}).length;
+  const activeCount=companies.filter(function(c){return c.status==='active';}).length;
+  const inactiveCount=companies.filter(function(c){return c.status==='suspended';}).length;
+  document.getElementById('a_coTabBar').innerHTML=
+    '<button class="'+(admCoTab==='pending'?'active':'')+'" onclick="admSwitchCoTab(\'pending\')">بانتظار المراجعة ('+pendingCount+')</button>'+
+    '<button class="'+(admCoTab==='active'?'active':'')+'" onclick="admSwitchCoTab(\'active\')">نشطة ('+activeCount+')</button>'+
+    '<button class="'+(admCoTab==='suspended'?'active':'')+'" onclick="admSwitchCoTab(\'suspended\')">موقوفة ('+inactiveCount+')</button>';
+}
 function admRenderCompaniesList(){
   const wrap=document.getElementById('a_companiesListArea');
   const list=companies.filter(function(c){return c.status===admCoTab;});
@@ -1396,22 +1536,35 @@ function admBuildCompanyCard(c){
     '<div class="details" id="details-a-co-'+c.id+'">'+detailsHtml+'</div>'+actions;
   return card;
 }
-function admApproveCompany(id){ const c=companies.find(function(x){return x.id===id;}); c.status='active'; c.rating=0; c.joinedAt=Date.now(); refreshCurrentScreen(); }
-function admRejectCompany(id){
-  const c=companies.find(function(x){return x.id===id;});
+async function admApproveCompany(id){
+  const { error } = await sb.rpc('approve_company', { p_company_id: id });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
+}
+async function admRejectCompany(id){
   const reason=window.prompt('سبب الرفض - يوصل لصاحب الشركة:','البيانات المقدمة غير مكتملة، يرجى استكمالها وإعادة التقديم');
-  companies=companies.filter(function(x){return x.id!==id;});
-  refreshCurrentScreen();
-  alert('تم إشعار "'+c.name+'" برفض الطلب. السبب: '+(reason||'—'));
+  const { error } = await sb.rpc('reject_company', { p_company_id: id, p_reason: reason });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
 }
-function admSuspendCompany(id){
-  const c=companies.find(function(x){return x.id===id;});
+async function admSuspendCompany(id){
   const reason=window.prompt('سبب إيقاف الشركة:','شكاوى متكررة من العملاء');
-  c.status='suspended'; c.reason=reason||'مخالفة شروط المنصة';
-  refreshCurrentScreen();
+  const { error } = await sb.rpc('suspend_company', { p_company_id: id, p_reason: reason });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
 }
-function admReactivateCompany(id){ const c=companies.find(function(x){return x.id===id;}); c.status='active'; delete c.reason; refreshCurrentScreen(); }
-function admRenderOrdersScreen(){
+async function admReactivateCompany(id){
+  const { error } = await sb.rpc('reactivate_company', { p_company_id: id });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
+}
+async function admRenderOrdersScreen(){
+  await admLoadData();
+  admUpdateOrderTabBar();
+  admRenderOrdersList();
+}
+function admSwitchOrderTab(tab){ admOrderTab=tab; admUpdateOrderTabBar(); admRenderOrdersList(); }
+function admUpdateOrderTabBar(){
   const allCount=orders.length;
   const disputedCount=orders.filter(function(o){return o.status==='disputed';}).length;
   const archiveCount=orders.filter(function(o){return o.status==='completed'||o.status==='rejected'||o.status==='expired'||o.status==='resolved';}).length;
@@ -1419,9 +1572,7 @@ function admRenderOrdersScreen(){
     '<button class="'+(admOrderTab==='all'?'active':'')+'" onclick="admSwitchOrderTab(\'all\')">الكل ('+allCount+')</button>'+
     '<button class="'+(admOrderTab==='disputed'?'active':'')+'" onclick="admSwitchOrderTab(\'disputed\')">نزاعات ('+disputedCount+')</button>'+
     '<button class="'+(admOrderTab==='archive'?'active':'')+'" onclick="admSwitchOrderTab(\'archive\')">الأرشيف ('+archiveCount+')</button>';
-  admRenderOrdersList();
 }
-function admSwitchOrderTab(tab){ admOrderTab=tab; admRenderOrdersScreen(); }
 function admRenderOrdersList(){
   const wrap=document.getElementById('a_ordersListArea');
   let list;
@@ -1445,7 +1596,7 @@ function admBuildOrderCard(o){
   let actions='', issueHtml='';
   if(o.status==='disputed'){
     issueHtml='<div class="issue-box"><b>سبب النزاع ('+(o.raisedBy==='customer'?'من العميل':'من مقدم الخدمة')+'):</b><br>'+o.issue+'</div>';
-    actions='<div class="actions"><button class="btn green" onclick="admResolveDispute('+o.id+',\'customer\')">لصالح العميل</button><button class="btn secondary" onclick="admResolveDispute('+o.id+',\'provider\')">لصالح مقدم الخدمة</button></div>';
+    actions='<div class="actions"><button class="btn green" onclick="admResolveDispute(\''+o.id+'\',\'customer\')">لصالح العميل</button><button class="btn secondary" onclick="admResolveDispute(\''+o.id+'\',\'provider\')">لصالح مقدم الخدمة</button></div>';
   }
   card.innerHTML='<div class="head"><div class="info"><b>'+o.companyName+'</b><div class="meta">'+o.customer+' — '+timeAgo(o.createdAt)+'</div></div><span class="badge '+st.cls+'">'+st.label+'</span></div>'+
     '<div class="meta" style="margin-top:4px">الإجمالي: <b style="color:var(--primary)">'+o.total+' د.ك</b></div>'+issueHtml+
@@ -1453,15 +1604,15 @@ function admBuildOrderCard(o){
     '<div class="details" id="details-a-ord-'+o.id+'">'+detailsHtml+'</div>'+actions;
   return card;
 }
-function admResolveDispute(id, side){
-  const o=orders.find(function(x){return x.id===id;});
+async function admResolveDispute(id, side){
   const note=window.prompt('ملاحظة قرار الحل (تنعرض للطرفين):', side==='customer'? 'تقرر استرجاع كامل المبلغ للعميل' : 'تقرر أن الطلب نُفذ بشكل صحيح، ولا يستحق العميل استرجاع');
-  o.status='resolved'; o.resolvedSide=side; o.resolution=note||'—';
-  refreshCurrentScreen();
+  const { error } = await sb.rpc('resolve_dispute', { p_order_id: id, p_side: side, p_resolution: note });
+  if(error){ alert(error.message); return; }
+  await refreshCurrentScreen();
 }
 
 /* =========================================================================
-   جدول التوجيه: أي شاشة تُعاد رسمها تلقائيًا عند الدخول لها أو عند refreshCurrentScreen
+   جدول التوجيه: أي شاشة تُعاد تحميلها/رسمها عند الدخول لها
    ========================================================================= */
 const screenRenderers={
   'c-home':custRenderHome, 'c-orders':custRenderOrders,
@@ -1471,30 +1622,26 @@ const screenRenderers={
 };
 
 /* =========================================================================
-   عداد حي واحد لكل التطبيق: يُنهي الطلبات المعلّقة تلقائيًا بعد ٥ دقايق،
-   ويحدّث شاشة انتظار العميل لحظيًا، ويحدّث أي شاشة نشطة كل ثانية.
+   عداد محلي بس لعرض الوقت المتبقي (بدون أي اتصال شبكة) — الانتهاء الفعلي
+   يصير على السيرفر عن طريق pg_cron، وقبول/رفض الطلب يوصل فورًا عن طريق
+   Supabase Realtime (لصفحة العميل بانتظار الرد تحديدًا).
    ========================================================================= */
 setInterval(function(){
-  orders.forEach(function(o){
-    if(o.status==='pending' && Date.now()>=o.expiresAt){ o.status='expired'; o.reason='لم يتم الرد خلال ٥ دقايق'; }
-  });
   if(currentUser && currentUser.role==='customer'){
     const scr=document.getElementById('c-pending');
-    if(scr && scr.classList.contains('active') && window._custPendingOrderId){
-      const o=orders.find(function(x){return x.id===window._custPendingOrderId;});
-      if(o){
-        if(o.status==='pending'){ document.getElementById('c_countdownText').textContent=fmtRemain(o.expiresAt-Date.now()); }
-        else if(o.status==='accepted'){ custGoToPayment(o); }
-        else if(o.status==='rejected' || o.status==='expired'){
-          document.getElementById('declinedTitle').textContent = o.status==='rejected' ? 'تم رفض الطلب' : 'انتهى وقت الانتظار';
-          document.getElementById('declinedText').textContent = o.reason || '—';
-          showScreen('c-declined');
-        }
-      }
+    if(scr && scr.classList.contains('active') && window._custPendingExpiresAt){
+      document.getElementById('c_countdownText').textContent=fmtRemain(window._custPendingExpiresAt-Date.now());
     }
   }
-  refreshCurrentScreen();
+  document.querySelectorAll('.countdown-mini[data-order-id]').forEach(function(el){
+    const oid=el.getAttribute('data-order-id');
+    const o=orders.find(function(x){return x.id===oid;});
+    if(o && o.expiresAt) el.textContent=fmtRemain(o.expiresAt-Date.now());
+  });
 },1000);
+
+checkExistingSession();
+
 </script>
 </body>
 </html>
